@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Model konfiguracji, specyfikacja parametrów, pliki konfiguracji. Bez zależności od GUI. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\MultiRejestrator.Protocol\MultiRejestrator.Protocol.csproj" />
+  </ItemGroup>
+
+</Project>

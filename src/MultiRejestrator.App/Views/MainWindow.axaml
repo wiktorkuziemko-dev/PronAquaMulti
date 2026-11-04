@@ -1,0 +1,73 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MultiRejestrator.App.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+        x:Class="MultiRejestrator.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Width="1100" Height="700" MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Title="MultiRejestrator – konfigurator">
+
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <!-- Układ zgodny z pkt 19 Założeń: pasek funkcji, obszar główny, pasek statusu. -->
+    <DockPanel>
+
+        <!-- Pasek funkcji. Przyciski nieaktywne do czasu implementacji. -->
+        <Border DockPanel.Dock="Top" Padding="8" BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <WrapPanel>
+                <WrapPanel.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="Margin" Value="0,0,6,0" />
+                        <Setter Property="IsEnabled" Value="False" />
+                    </Style>
+                    <Style Selector="Separator">
+                        <Setter Property="Width" Value="1" />
+                        <Setter Property="Margin" Value="6,4,12,4" />
+                    </Style>
+                </WrapPanel.Styles>
+                <Button Content="Nowa konfiguracja" />
+                <Button Content="Otwórz…" />
+                <Button Content="Zapisz…" />
+                <Separator />
+                <Button Content="Połącz" />
+                <Button Content="Rozłącz" />
+                <Separator />
+                <Button Content="Pobierz z urządzenia" />
+                <Button Content="Wyślij do urządzenia" />
+                <Separator />
+                <Button Content="Diagnostyka" />
+                <Button Content="Bufor zdarzeń" />
+            </WrapPanel>
+        </Border>
+
+        <!-- Pasek statusu. -->
+        <Border DockPanel.Dock="Bottom" Padding="8,4" BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
+                <Grid.Styles>
+                    <Style Selector="TextBlock">
+                        <Setter Property="Margin" Value="0,0,24,0" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                    </Style>
+                </Grid.Styles>
+                <TextBlock Grid.Column="0" Text="{Binding ComPort, StringFormat='Port: {0}'}" />
+                <TextBlock Grid.Column="1" Text="{Binding ConnectionState, StringFormat='Stan: {0}'}" />
+                <TextBlock Grid.Column="2" Text="{Binding SerialNumber, StringFormat='Nr seryjny: {0}'}" />
+                <TextBlock Grid.Column="3" Text="{Binding FirmwareVersion, StringFormat='Firmware: {0}'}" />
+                <TextBlock Grid.Column="4" Text="{Binding ProtocolVersion, StringFormat='Protokół: {0}'}" />
+                <TextBlock Grid.Column="6" Margin="0" Opacity="0.6" Text="{Binding AppVersion}" />
+            </Grid>
+        </Border>
+
+        <!-- Obszar konfiguracji. -->
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"
+                   Text="Szkielet aplikacji. Formularz konfiguracji w przygotowaniu." />
+    </DockPanel>
+</Window>

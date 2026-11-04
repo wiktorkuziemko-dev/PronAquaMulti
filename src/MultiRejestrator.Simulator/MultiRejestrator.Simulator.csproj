@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Symulator urządzenia odpowiadający na ramki protokołu. Do testów bez sprzętu. -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MultiRejestrator.Protocol\MultiRejestrator.Protocol.csproj" />
+  </ItemGroup>
+
+</Project>
