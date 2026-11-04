@@ -4,6 +4,13 @@ Aplikacja desktopowa (Windows) do konfiguracji urządzeń MultiRejestrator / Pro
 Specyfikacja: „Założenia programu MultiRejestrator” v1.00 oraz „Protokół Komunikacyjny PronAquaMulti” v1.0 rev3821.
 Otwarte pytania do specyfikacji są prowadzone w osobnym dokumencie zespołu, poza repozytorium.
 
+## Dokumentacja (`docs/`)
+
+- `docs/specyfikacja/zalozenia.md`, `docs/specyfikacja/protokol.md` – transkrypcje; czytaj je zamiast PDF/DOCX.
+  Oryginały w `docs/zrodla/` rozstrzygają w razie rozbieżności.
+- `docs/specyfikacja/parametry.csv` – parametry konfiguracyjne jako dane; format opisany w `docs/README.md`.
+- `docs/decyzje.md` – rejestr decyzji; dopisz wpis przy każdej istotnej decyzji projektowej.
+
 ## Technologia
 
 - C# / .NET 10, Avalonia 12 (Fluent), CommunityToolkit.Mvvm, System.IO.Ports, xUnit.
