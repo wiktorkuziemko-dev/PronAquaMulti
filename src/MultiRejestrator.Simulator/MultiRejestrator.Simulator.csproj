@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Symulator urządzenia odpowiadający na ramki protokołu. Do testów bez sprzętu. -->
+  <!-- Symulator urządzenia (strona Slave protokołu). Używany w testach i do ręcznych prób przez parę wirtualnych portów COM. -->
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MultiRejestrator.Protocol\MultiRejestrator.Protocol.csproj" />
+    <ProjectReference Include="..\MultiRejestrator.Core\MultiRejestrator.Core.csproj" />
   </ItemGroup>
 
 </Project>

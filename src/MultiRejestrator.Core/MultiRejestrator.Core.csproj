@@ -1,9 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Model konfiguracji, specyfikacja parametrów, pliki konfiguracji. Bez zależności od GUI. -->
+  <!-- Model konfiguracji, specyfikacja parametrów, pliki konfiguracji i operacje na urządzeniu. Nie zna GUI. -->
 
   <ItemGroup>
     <ProjectReference Include="..\MultiRejestrator.Protocol\MultiRejestrator.Protocol.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Jedno źródło prawdy: tabele z dokumentacji wbudowane w program. -->
+    <EmbeddedResource Include="..\..\docs\specyfikacja\parametry.csv" LogicalName="parametry.csv" />
+    <EmbeddedResource Include="..\..\docs\specyfikacja\stan-urzadzenia.csv" LogicalName="stan-urzadzenia.csv" />
   </ItemGroup>
 
 </Project>
