@@ -3,11 +3,11 @@
     <OutputType>WinExe</OutputType>
     <AssemblyName>MultiRejestrator</AssemblyName>
     <RootNamespace>MultiRejestrator.App</RootNamespace>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
@@ -21,6 +21,11 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Tryb demonstracyjny (parametr symulator): urządzenie w pamięci, bez portu COM. -->
+    <Compile Include="..\MultiRejestrator.Simulator\SimulatedDevice.cs" Link="Services\SimulatedDevice.cs" />
   </ItemGroup>
 
   <ItemGroup>

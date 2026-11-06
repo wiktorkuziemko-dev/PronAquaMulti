@@ -1,73 +1,344 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MultiRejestrator.App.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+        xmlns:dlg="using:MultiRejestrator.App.ViewModels.Dialogs"
+        xmlns:pages="using:MultiRejestrator.App.Views.Pages"
+        xmlns:conv="using:MultiRejestrator.App.Converters"
         x:Class="MultiRejestrator.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Width="1100" Height="700" MinWidth="900" MinHeight="600"
+        Icon="/Assets/app.ico"
+        Width="1366" Height="768" MinWidth="1100" MinHeight="640"
         WindowStartupLocation="CenterScreen"
-        Title="MultiRejestrator – konfigurator">
+        Background="{StaticResource PageBrush}"
+        Title="{Binding DocumentName, StringFormat='MultiRejestrator – {0}'}">
 
-    <Design.DataContext>
-        <vm:MainViewModel />
-    </Design.DataContext>
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+N" Command="{Binding NewCommand}" />
+        <KeyBinding Gesture="Ctrl+O" Command="{Binding OpenCommand}" />
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
+        <KeyBinding Gesture="F5" Command="{Binding ReadFromDeviceCommand}" />
+        <KeyBinding Gesture="Ctrl+Enter" Command="{Binding SendToDeviceCommand}" />
+    </Window.KeyBindings>
 
-    <!-- Układ zgodny z pkt 19 Założeń: pasek funkcji, obszar główny, pasek statusu. -->
-    <DockPanel>
+    <Window.DataTemplates>
+        <DataTemplate DataType="vm:SectionPageViewModel"><pages:SectionPageView /></DataTemplate>
+        <DataTemplate DataType="vm:ChannelPageViewModel"><pages:ChannelPageView /></DataTemplate>
+        <DataTemplate DataType="vm:DiagnosticsViewModel"><pages:DiagnosticsView /></DataTemplate>
+        <DataTemplate DataType="vm:MeasurementsViewModel"><pages:MeasurementsView /></DataTemplate>
+        <DataTemplate DataType="vm:CompareViewModel"><pages:CompareView /></DataTemplate>
 
-        <!-- Pasek funkcji. Przyciski nieaktywne do czasu implementacji. -->
-        <Border DockPanel.Dock="Top" Padding="8" BorderThickness="0,0,0,1"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-            <WrapPanel>
-                <WrapPanel.Styles>
-                    <Style Selector="Button">
-                        <Setter Property="Margin" Value="0,0,6,0" />
-                        <Setter Property="IsEnabled" Value="False" />
-                    </Style>
-                    <Style Selector="Separator">
-                        <Setter Property="Width" Value="1" />
-                        <Setter Property="Margin" Value="6,4,12,4" />
-                    </Style>
-                </WrapPanel.Styles>
-                <Button Content="Nowa konfiguracja" />
-                <Button Content="Otwórz…" />
-                <Button Content="Zapisz…" />
-                <Separator />
-                <Button Content="Połącz" />
-                <Button Content="Rozłącz" />
-                <Separator />
-                <Button Content="Pobierz z urządzenia" />
-                <Button Content="Wyślij do urządzenia" />
-                <Separator />
-                <Button Content="Diagnostyka" />
-                <Button Content="Bufor zdarzeń" />
-            </WrapPanel>
-        </Border>
+        <!-- Okna dialogowe -->
+        <DataTemplate DataType="dlg:MessageDialogViewModel">
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" />
+                <Border Classes="errbox" IsVisible="{Binding IsError}"><TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="#7F1D1D" /></Border>
+                <Border Classes="okbox" IsVisible="{Binding IsSuccess}"><TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="#14532D" /></Border>
+                <Border Classes="warn" IsVisible="{Binding IsWarning}"><TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="#5B3B00" /></Border>
+                <TextBlock Text="{Binding Hint}" IsVisible="{Binding HasHint}" Classes="muted" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                    <Button Classes="primary" Content="OK" Command="{Binding ConfirmCommand}" IsDefault="True" MinWidth="80" HorizontalContentAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
 
-        <!-- Pasek statusu. -->
-        <Border DockPanel.Dock="Bottom" Padding="8,4" BorderThickness="0,1,0,0"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
-                <Grid.Styles>
-                    <Style Selector="TextBlock">
-                        <Setter Property="Margin" Value="0,0,24,0" />
-                        <Setter Property="VerticalAlignment" Value="Center" />
-                    </Style>
-                </Grid.Styles>
-                <TextBlock Grid.Column="0" Text="{Binding ComPort, StringFormat='Port: {0}'}" />
-                <TextBlock Grid.Column="1" Text="{Binding ConnectionState, StringFormat='Stan: {0}'}" />
-                <TextBlock Grid.Column="2" Text="{Binding SerialNumber, StringFormat='Nr seryjny: {0}'}" />
-                <TextBlock Grid.Column="3" Text="{Binding FirmwareVersion, StringFormat='Firmware: {0}'}" />
-                <TextBlock Grid.Column="4" Text="{Binding ProtocolVersion, StringFormat='Protokół: {0}'}" />
-                <TextBlock Grid.Column="6" Margin="0" Opacity="0.6" Text="{Binding AppVersion}" />
+        <DataTemplate DataType="dlg:UnsavedDialogViewModel">
+            <StackPanel Spacing="10">
+                <TextBlock Text="Konfiguracja została zmieniona" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding DocumentName, StringFormat='Czy zapisać zmiany w „{0}” przed kontynuowaniem?'}" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+                    <Button Content="Anuluj" Command="{Binding CancelCommand}" IsCancel="True" />
+                    <Button Content="Nie zapisuj" Command="{Binding DiscardCommand}" />
+                    <Button Classes="primary" Content="Zapisz" Command="{Binding SaveCommand}" IsDefault="True" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="dlg:SendDialogViewModel">
+            <StackPanel Spacing="10">
+                <TextBlock Text="Wysłać konfigurację do urządzenia?" FontSize="18" FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+                    <TextBlock Text="Urządzenie" Classes="muted" />
+                    <TextBlock Grid.Column="1" FontWeight="SemiBold">
+                        <Run Text="{Binding DeviceSerial}" /><Run Text=" (" FontWeight="Normal" /><Run Text="{Binding Port}" FontWeight="Normal" /><Run Text=")" FontWeight="Normal" />
+                    </TextBlock>
+                    <TextBlock Grid.Row="1" Text="Konfiguracja" Classes="muted" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" TextWrapping="Wrap">
+                        <Run Text="{Binding DocumentName}" /><Run Text=" · " /><Run Text="{Binding FrameCount}" /><Run Text=" ramek, bez kodu dostępu" />
+                    </TextBlock>
+                    <TextBlock Grid.Row="2" Text="Nr seryjny w konfiguracji" Classes="muted" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ConfigurationSerial}" />
+                </Grid>
+                <Border Classes="warn" IsVisible="{Binding SerialMismatch}">
+                    <TextBlock TextWrapping="Wrap" Foreground="#5B3B00">
+                        <Run Text="Uwaga: numer seryjny w konfiguracji (" FontWeight="SemiBold" /><Run Text="{Binding ConfigurationSerial}" FontWeight="SemiBold" /><Run Text=") różni się od numeru podłączonego urządzenia (" FontWeight="SemiBold" /><Run Text="{Binding DeviceSerial}" FontWeight="SemiBold" /><Run Text="). Po wysłaniu urządzenie otrzyma numer z konfiguracji." FontWeight="SemiBold" />
+                    </TextBlock>
+                </Border>
+                <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Kod dostępu (Id 2) nie jest wysyłany. Do jego zmiany służy „Zmień kod w urządzeniu…” w sekcji Ogólne." />
+                <CheckBox Content="Ustaw zegar urządzenia na czas komputera" IsChecked="{Binding SetTime}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+                    <Button Content="Anuluj" Command="{Binding CancelCommand}" IsCancel="True" IsDefault="True" />
+                    <Button Classes="primary" Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="dlg:ProgressDialogViewModel">
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Text}" Classes="muted" />
+                <ProgressBar Value="{Binding Percent}" Maximum="100" Height="8" CornerRadius="4" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="dlg:ChangeCodeDialogViewModel">
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding DeviceSerial, StringFormat='Zmień kod dostępu w urządzeniu {0}'}" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock TextWrapping="Wrap" Text="Osobna operacja: wysyłany jest tylko parametr Id 2. Po zmianie program używa nowego kodu, a pole w konfiguracji zostanie zaktualizowane." />
+                <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                    <TextBlock Text="Obecny kod" Classes="muted" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding CurrentCode}" Classes="mono" />
+                    <TextBlock Grid.Row="1" Text="Nowy kod" Classes="muted" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NewCode}" MaxLength="6" Width="120" HorizontalAlignment="Left" Classes="mono" />
+                    <TextBlock Grid.Row="2" Text="Powtórz nowy kod" Classes="muted" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding RepeatCode}" MaxLength="6" Width="120" HorizontalAlignment="Left" Classes="mono" />
+                </Grid>
+                <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+                    <Button Content="Anuluj" Command="{Binding CancelCommand}" IsCancel="True" />
+                    <Button Classes="primary" Content="Zmień kod" Command="{Binding ConfirmCommand}" IsEnabled="{Binding IsValid}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="dlg:CopyChannelDialogViewModel">
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock TextWrapping="Wrap" Text="Wszystkie 61 parametrów kanału zostanie skopiowanych do wybranych kanałów. Kanały zablokowane przez sprzężenie są niedostępne." />
+                <ItemsControl ItemsSource="{Binding Targets}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><UniformGrid Columns="4" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="dlg:CopyTargetViewModel">
+                            <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked}" IsEnabled="{Binding IsEnabled}" Margin="0,4" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+                    <Button Content="Anuluj" Command="{Binding CancelCommand}" IsCancel="True" />
+                    <Button Classes="primary" Content="Kopiuj" Command="{Binding ConfirmCommand}" IsEnabled="{Binding HasSelection}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="dlg:SettingsDialogViewModel">
+            <StackPanel Spacing="10">
+                <TextBlock Text="Ustawienia programu" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock Classes="muted small" Text="{Binding SettingsPath, StringFormat='Zapisywane w pliku {0}'}" TextWrapping="Wrap" />
+                <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto" RowSpacing="4">
+                    <TextBlock Text="Domyślny kod dostępu" VerticalAlignment="Center" Classes="muted" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                        <TextBox Text="{Binding DefaultAccessCode}" MaxLength="6" Width="120" Classes="mono" />
+                        <TextBlock Text="dla „Nowej konfiguracji”" Classes="muted" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Classes="error" Text="{Binding Error}" IsVisible="{Binding !IsValid}" />
+                </Grid>
+                <CheckBox Content="Domyślnie ustawiaj zegar urządzenia przy wysyłaniu konfiguracji" IsChecked="{Binding SetTimeOnSend}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+                    <Button Content="Anuluj" Command="{Binding CancelCommand}" IsCancel="True" />
+                    <Button Classes="primary" Content="Zapisz" Command="{Binding ConfirmCommand}" IsEnabled="{Binding IsValid}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="dlg:AboutDialogViewModel">
+            <StackPanel Spacing="6" HorizontalAlignment="Center">
+                <Border Background="{StaticResource AccentBrush}" CornerRadius="12" Padding="0,22" Width="460">
+                    <Image Source="/Assets/pronal-logo-white.png" Height="60" />
+                </Border>
+                <TextBlock Text="MultiRejestrator – konfigurator" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" />
+                <TextBlock Text="{Binding Version, StringFormat='Wersja {0} · protokół komunikacyjny 1'}" Classes="muted" HorizontalAlignment="Center" />
+                <TextBlock Text="Konfiguracja, diagnostyka i odczyt danych urządzeń MultiRejestrator przez RS232/UART." Classes="muted" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+                <Button Classes="primary" Content="Zamknij" Command="{Binding ConfirmCommand}" HorizontalAlignment="Center" Margin="0,14,0,0" IsDefault="True" IsCancel="True" />
+            </StackPanel>
+        </DataTemplate>
+    </Window.DataTemplates>
+
+    <Panel>
+        <Grid RowDefinitions="58,1,Auto,*,Auto,30">
+            <!-- Nagłówek: logo, dokument, połączenie -->
+            <Grid ColumnDefinitions="236,Auto,*,Auto,Auto,Auto" Background="White">
+                <Border Background="{StaticResource AccentBrush}">
+                    <Image Source="/Assets/pronal-logo-white.png" Height="33" Margin="16,0" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0">
+                    <TextBlock Text="MultiRejestrator" FontSize="14" FontWeight="SemiBold" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontSize="12" Classes="muted" MaxWidth="420" TextTrimming="CharacterEllipsis" Text="{Binding DocumentName}" />
+                        <TextBlock FontSize="12" Text=" · niezapisane zmiany" Foreground="#B45309" FontWeight="SemiBold" IsVisible="{Binding IsDirty}" />
+                    </StackPanel>
+                </StackPanel>
+                <Border Grid.Column="3" Background="#F4F5F7" BorderBrush="#E3E6EB" BorderThickness="1" CornerRadius="12" Padding="12,5,6,5" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse Width="10" Height="10" Fill="{Binding ConnectionColor, Converter={x:Static conv:ColorBrushConverter.Instance}}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding ConnectionText}" FontWeight="SemiBold" FontSize="12.5" Width="118" VerticalAlignment="Center" />
+                        <TextBlock Text="Port" Classes="muted small" VerticalAlignment="Center" />
+                        <ComboBox ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}" Width="128" IsEnabled="{Binding !PortLocked}"
+                                  PlaceholderText="brak" AutomationProperties.Name="Port COM" />
+                        <Button Classes="icon ghost" Command="{Binding RefreshPortsCommand}" IsEnabled="{Binding !PortLocked}" ToolTip.Tip="Odśwież listę portów"
+                                AutomationProperties.Name="Odśwież listę portów">
+                            <Path Data="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" Stroke="#374151" StrokeThickness="1.6" Width="15" Height="15" Stretch="Uniform" />
+                        </Button>
+                        <Button Classes="primary" Content="Połącz" Command="{Binding ConnectCommand}" IsVisible="{Binding !CanDisconnect}" IsEnabled="{Binding CanConnect}" />
+                        <Button Content="Rozłącz" Command="{Binding DisconnectCommand}" IsVisible="{Binding CanDisconnect}" />
+                    </StackPanel>
+                </Border>
+                <Button Grid.Column="4" Classes="icon ghost" Margin="12,0,0,0" Command="{Binding OpenSettingsCommand}" ToolTip.Tip="Ustawienia programu" AutomationProperties.Name="Ustawienia programu">
+                    <Path Data="M8 5.8a2.2 2.2 0 1 0 0 4.4a2.2 2.2 0 1 0 0-4.4M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"
+                          Stroke="#374151" StrokeThickness="1.5" Width="17" Height="17" Stretch="Uniform" />
+                </Button>
+                <Button Grid.Column="5" Classes="icon ghost" Margin="4,0,18,0" Command="{Binding OpenAboutCommand}" ToolTip.Tip="O programie" AutomationProperties.Name="O programie">
+                    <Path Data="M8 1.8a6.2 6.2 0 1 0 0 12.4a6.2 6.2 0 1 0 0-12.4M8 7.2v4M8 4.6v.1" Stroke="#374151" StrokeThickness="1.5" Width="17" Height="17" Stretch="Uniform" />
+                </Button>
             </Grid>
+            <Border Grid.Row="1" Background="#E3E6EB" />
+
+            <!-- Pasek poleceń (pkt 19) -->
+            <Border Grid.Row="2" Background="White" BorderBrush="#E3E6EB" BorderThickness="0,0,0,1" Padding="14,8">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Button Classes="ghost" Command="{Binding NewCommand}" ToolTip.Tip="Nowa konfiguracja (Ctrl+N)">
+                            <StackPanel Orientation="Horizontal" Spacing="7"><Path Data="M4 1.8h5l3 3v9.4H4zM9 1.8v3h3" Stroke="#374151" StrokeThickness="1.5" Width="15" Height="15" Stretch="Uniform" /><TextBlock Text="Nowa" /></StackPanel>
+                        </Button>
+                        <Button Classes="ghost" Command="{Binding OpenCommand}" ToolTip.Tip="Otwórz konfigurację z dysku (Ctrl+O)">
+                            <StackPanel Orientation="Horizontal" Spacing="7"><Path Data="M1.8 4.5h4.2l1.5 1.5h6.7v7.5H1.8z" Stroke="#374151" StrokeThickness="1.5" Width="15" Height="15" Stretch="Uniform" /><TextBlock Text="Otwórz…" /></StackPanel>
+                        </Button>
+                        <Button Classes="ghost" Command="{Binding SaveCommand}" ToolTip.Tip="Zapisz konfigurację na dysku (Ctrl+S)">
+                            <StackPanel Orientation="Horizontal" Spacing="7"><Path Data="M2.5 2.5h8.5l2.5 2.5v8.5h-11zM5 2.5v3.5h5V2.5M5 13.5V9.5h6v4" Stroke="#374151" StrokeThickness="1.5" Width="15" Height="15" Stretch="Uniform" /><TextBlock Text="Zapisz" /></StackPanel>
+                        </Button>
+                        <Button Classes="ghost" Command="{Binding SaveAsCommand}" Content="Zapisz jako…" ToolTip.Tip="Zapisz konfigurację pod inną nazwą" />
+                        <Border Width="1" Height="22" Background="#E3E6EB" Margin="6,0" />
+                        <Button Command="{Binding ReadFromDeviceCommand}" IsEnabled="{Binding CanUseDevice}" ToolTip.Tip="Pobierz konfigurację z urządzenia (F5)">
+                            <StackPanel Orientation="Horizontal" Spacing="7"><Path Data="M8 2v8M4.8 7l3.2 3.2L11.2 7M2.5 13.5h11" Stroke="#374151" StrokeThickness="1.6" Width="15" Height="15" Stretch="Uniform" /><TextBlock Text="Pobierz z urządzenia" /></StackPanel>
+                        </Button>
+                        <Button Classes="primary" Command="{Binding SendToDeviceCommand}" IsEnabled="{Binding CanUseDevice}" ToolTip.Tip="Wyślij konfigurację do urządzenia (Ctrl+Enter)">
+                            <StackPanel Orientation="Horizontal" Spacing="7">
+                                <Path Data="M8 10.5V2.3M4.8 5.5L8 2.3l3.2 3.2M2.5 13.5h11" Stroke="White" StrokeThickness="1.6" Width="15" Height="15" Stretch="Uniform" />
+                                <TextBlock Text="Wyślij do urządzenia" />
+                                <Border Background="#DC2626" CornerRadius="9" Padding="6,0" IsVisible="{Binding HasErrors}">
+                                    <TextBlock Text="{Binding ErrorCount}" FontSize="11" FontWeight="SemiBold" Foreground="White" />
+                                </Border>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <Border Grid.Column="2" Background="#F1F3F6" CornerRadius="10" Padding="3">
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+                            <Button Classes="tab" Classes.on="{Binding IsConfigurationView}" Content="Konfiguracja" Command="{Binding ShowViewCommand}" CommandParameter="{x:Static vm:MainView.Configuration}" />
+                            <Button Classes="tab" Classes.on="{Binding IsDiagnosticsView}" Content="Diagnostyka" Command="{Binding ShowViewCommand}" CommandParameter="{x:Static vm:MainView.Diagnostics}" />
+                            <Button Classes="tab" Classes.on="{Binding IsMeasurementsView}" Content="Dane pomiarowe" Command="{Binding ShowViewCommand}" CommandParameter="{x:Static vm:MainView.Measurements}" />
+                            <Button Classes="tab" Classes.on="{Binding IsCompareView}" Content="Porównanie" Command="{Binding ShowViewCommand}" CommandParameter="{x:Static vm:MainView.Compare}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Obszar główny -->
+            <Grid Grid.Row="3" ColumnDefinitions="Auto,*">
+                <Border Background="White" BorderBrush="#E3E6EB" BorderThickness="0,0,1,0" Width="236" IsVisible="{Binding IsConfigurationView}">
+                    <ScrollViewer>
+                        <StackPanel Margin="10,8,10,12">
+                            <TextBlock Text="KONFIGURACJA" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280" Margin="10,10,10,6" />
+                            <ItemsControl ItemsSource="{Binding NavSections}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:NavItemViewModel">
+                                        <Button Classes="nav" Classes.selected="{Binding IsSelected}"
+                                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateCommand}" CommandParameter="{Binding}">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Path Data="{Binding Icon, Converter={x:Static conv:GeometryConverter.Instance}}" Stroke="#6B7280" StrokeThickness="1.5" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="10,0" VerticalAlignment="Center" />
+                                                <Border Grid.Column="2" Background="#DC2626" CornerRadius="9" Padding="6,0" IsVisible="{Binding HasErrors}" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Errors}" FontSize="11" FontWeight="SemiBold" Foreground="White" />
+                                                </Border>
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="KANAŁY" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280" Margin="10,14,10,6" />
+                            <ItemsControl ItemsSource="{Binding NavChannels}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:NavItemViewModel">
+                                        <Button Classes="nav" Classes.selected="{Binding IsSelected}"
+                                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateCommand}" CommandParameter="{Binding}">
+                                            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto">
+                                                <Path Data="{Binding Icon, Converter={x:Static conv:GeometryConverter.Instance}}" Stroke="#6B7280" StrokeThickness="1.5" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="10,0,6,0" VerticalAlignment="Center" />
+                                                <Path Grid.Column="2" IsVisible="{Binding IsCoupled}" Data="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.8 2.8 0 0 1 4 4L11 8.5M9 11.5l-1.2 1.2a2.8 2.8 0 0 1-4-4L5 7.5"
+                                                      Stroke="#1F5BD8" StrokeThickness="1.6" Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center" ToolTip.Tip="Tryb sprzężony" />
+                                                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                    <Ellipse Width="8" Height="8" Fill="{Binding DotColor, Converter={x:Static conv:ColorBrushConverter.Instance}}" VerticalAlignment="Center" />
+                                                    <TextBlock Text="{Binding SubText}" FontSize="12" FontWeight="Normal" Foreground="#4B5563" />
+                                                </StackPanel>
+                                                <Border Grid.Column="4" Background="#DC2626" CornerRadius="9" Padding="6,0" Margin="6,0,0,0" IsVisible="{Binding HasErrors}" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Errors}" FontSize="11" FontWeight="SemiBold" Foreground="White" />
+                                                </Border>
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+                <ScrollViewer Grid.Column="1" x:Name="ContentScroll">
+                    <ContentControl Content="{Binding CurrentPage}" Margin="32,24,32,32" />
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Log komunikacji -->
+            <Border Grid.Row="4" Background="#0F172A" Height="180" IsVisible="{Binding IsLogVisible}">
+                <ScrollViewer x:Name="LogScroll" Padding="16,8">
+                    <ItemsControl ItemsSource="{Binding LogLines}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LogLine">
+                                <SelectableTextBlock Text="{Binding Text}" FontSize="11.5" FontFamily="Cascadia Mono, Consolas, Courier New, monospace"
+                                                     Foreground="{Binding Color, Converter={x:Static conv:ColorBrushConverter.Instance}}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Pasek statusu (pkt 19) -->
+            <Border Grid.Row="5" Background="White" BorderBrush="#E3E6EB" BorderThickness="0,1,0,0" Padding="16,0">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto">
+                    <TextBlock VerticalAlignment="Center" FontSize="12" Margin="0,0,22,0"><Run Text="Port: " Foreground="#6B7280" /><Run Text="{Binding SelectedPort}" /></TextBlock>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,0,22,0" VerticalAlignment="Center">
+                        <TextBlock Text="Stan:" FontSize="12" Foreground="#6B7280" />
+                        <Ellipse Width="8" Height="8" Fill="{Binding ConnectionColor, Converter={x:Static conv:ColorBrushConverter.Instance}}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding ConnectionText}" FontSize="12" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="12" Margin="0,0,22,0"><Run Text="Nr seryjny: " Foreground="#6B7280" /><Run Text="{Binding DeviceSerialText}" /></TextBlock>
+                    <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="12" Margin="0,0,22,0"><Run Text="Firmware: " Foreground="#6B7280" /><Run Text="{Binding FirmwareText}" /></TextBlock>
+                    <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="12"><Run Text="Protokół: " Foreground="#6B7280" /><Run Text="{Binding ProtocolText}" /></TextBlock>
+                    <TextBlock Grid.Column="6" VerticalAlignment="Center" FontSize="12" Foreground="#6B7280" Text="{Binding AppVersion}" Margin="0,0,8,0" />
+                    <Button Grid.Column="7" Classes="link" Command="{Binding ToggleLogCommand}" Content="Log komunikacji" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Okno dialogowe nad oknem głównym -->
+        <Border Background="#600F172A" IsVisible="{Binding HasDialog}">
+            <Border Background="White" CornerRadius="16" Padding="28,26,28,22" Width="580" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    BoxShadow="0 24 64 0 #470F172A">
+                <ContentControl Content="{Binding CurrentDialog}" />
+            </Border>
         </Border>
 
-        <!-- Obszar konfiguracji. -->
-        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"
-                   Text="Szkielet aplikacji. Formularz konfiguracji w przygotowaniu." />
-    </DockPanel>
+        <!-- Powiadomienie -->
+        <Border IsVisible="{Binding HasToast}" Background="#111827" CornerRadius="12" Padding="16,12" MaxWidth="480"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,44" BoxShadow="0 12 32 0 #4C0F172A">
+            <TextBlock Text="{Binding Toast}" Foreground="White" TextWrapping="Wrap" FontSize="12.5" />
+        </Border>
+    </Panel>
 </Window>

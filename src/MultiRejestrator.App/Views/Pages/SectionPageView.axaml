@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MultiRejestrator.App.ViewModels"
+             xmlns:v="using:MultiRejestrator.App.Views"
+             x:Class="MultiRejestrator.App.Views.Pages.SectionPageView"
+             x:DataType="vm:SectionPageViewModel">
+    <StackPanel>
+        <TextBlock Classes="h2" Text="{Binding Title}" />
+        <TextBlock Classes="muted" Text="{Binding Lead}" TextWrapping="Wrap" MaxWidth="820" HorizontalAlignment="Left" Margin="0,4,0,18" />
+
+        <!-- Kod dostępu: w konfiguracji, ale zmieniany w urządzeniu osobną operacją (odpowiedź 5.4). -->
+        <Border Classes="card" IsVisible="{Binding IsGeneral}">
+            <StackPanel>
+                <TextBlock Classes="h3" Text="Kod dostępu" Margin="18,10,18,6" />
+                <v:ParameterFieldView DataContext="{Binding Main.Editor, Converter={x:Static vm:EditorFieldConverter.AccessCode}}" />
+                <StackPanel Orientation="Horizontal" Spacing="12" Margin="18,4,18,8">
+                    <Button Content="Zmień kod w urządzeniu…" Command="{Binding Main.ChangeAccessCodeCommand}" IsEnabled="{Binding Main.CanUseDevice}" />
+                    <TextBlock Classes="muted small" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="560"
+                               Text="Program łączy się tym kodem. Kod nie jest wysyłany razem z konfiguracją – do zmiany w urządzeniu służy ten przycisk." />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <ItemsControl ItemsSource="{Binding Cards}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:FieldCard">
+                    <Border Classes="card">
+                        <StackPanel>
+                            <TextBlock Classes="h3" Text="{Binding Title}" IsVisible="{Binding HasTitle}" Margin="18,10,18,6" />
+                            <ItemsControl ItemsSource="{Binding Fields}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ParameterFieldViewModel">
+                                        <v:ParameterFieldView />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

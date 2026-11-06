@@ -25,6 +25,8 @@ komentarzem `// ZAŁOŻENIE:`.
 
 | Data | Decyzja | Uzasadnienie |
 | --- | --- | --- |
+| 2026-11-06 | Tryb demonstracyjny `--symulator` w programie (port „SYMULATOR”, urządzenie w pamięci). Niewidoczny bez parametru. | Testy i szkolenia bez sprzętu. |
+| 2026-11-06 | Widok „Zdarzenia” z makiety nazwany „Dane pomiarowe” (ramka Measure Report). | Protokół rev3871 nie ma bufora zdarzeń – patrz założenia wyżej. |
 | 2026-11-06 | Numeracja wersji programu: `MAJOR.MINOR.PATCH` w `Directory.Build.props`. Tag `vX.Y.Z` na GitHubie buduje wydanie z plikami `.exe` (x64, x86). | Propozycja wykonawcy (9.9). |
 | 2026-11-06 | Plik konfiguracji: tekst UTF-8 `.txt`, jeden parametr w wierszu `Id = wartość  # nazwa`, sekcje jak w interfejsie, nagłówek z wersją protokołu, numerem seryjnym, firmware i datą. Bez osobnej wersji formatu. | 7.1, 7.4, 11.3 Założeń. |
 | 2026-11-05 | Log zapisywany wyłącznie w folderze programu, nadpisywany przy każdym połączeniu. Gdy system zablokuje zapis – tylko komunikat. | Ustalenie z 5.11.2026, 7.10. |

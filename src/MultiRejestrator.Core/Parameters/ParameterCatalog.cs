@@ -73,7 +73,7 @@ public sealed class ParameterCatalog
     private static ParameterDefinition Create(Dictionary<string, string> row, ushort baseId, int? channel, bool isDeviceState)
     {
         var rawName = row["nazwa"];
-        var name = rawName.Replace(" kanału N", string.Empty, StringComparison.Ordinal).Trim();
+        var name = ShortName(rawName.Replace(" kanału N", string.Empty, StringComparison.Ordinal).Trim());
         var fullName = channel is null ? rawName : rawName.Replace("kanału N", $"kanału {channel + 1}", StringComparison.Ordinal);
         var editColumn = isDeviceState ? row["prezentacja"] : row["edycja"];
         var dataType = row["typ"] switch
@@ -158,6 +158,17 @@ public sealed class ParameterCatalog
             DefaultValue = defaultValue,
             Notes = row.GetValueOrDefault("uwagi", string.Empty),
         };
+    }
+
+    /// <summary>
+    /// Krótka etykieta do formularza: bez dopisków powtarzających nazwę grupy kanału
+    /// („dla wejścia analogowego 4–20 mA”) i opisu kodowania („w postaci mapy bitów”).
+    /// Pełna nazwa z Protokołu pozostaje w <see cref="ParameterDefinition.FullName"/>.
+    /// </summary>
+    private static string ShortName(string name)
+    {
+        name = System.Text.RegularExpressions.Regex.Replace(name, @"\s+(dla\s+)?wejścia\s+(impulsowego|binarnego|analogowego.*)$", string.Empty);
+        return name.Replace(" w postaci mapy bitów", string.Empty, StringComparison.Ordinal);
     }
 
     internal static (long Min, long Max) TypeRange(DataType type) => type switch

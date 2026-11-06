@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MultiRejestrator.App.ViewModels"
+             x:Class="MultiRejestrator.App.Views.ParameterFieldView"
+             x:DataType="vm:ParameterFieldViewModel">
+    <Border Classes="row" Classes.changed="{Binding IsChanged}" Classes.error="{Binding HasError}">
+        <Grid ColumnDefinitions="260,*,72" RowDefinitions="Auto,Auto">
+            <TextBlock Text="{Binding Label}" ToolTip.Tip="{Binding Tooltip}" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Margin="0,0,12,0" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBox IsVisible="{Binding IsTextBox}" Text="{Binding Value}" Width="{Binding InputWidth}"
+                         MaxLength="{Binding MaxLength}" IsEnabled="{Binding IsEnabled}" Classes.mono="{Binding IsMonospace}" VerticalAlignment="Center"
+                         AutomationProperties.Name="{Binding Label}" />
+                <ComboBox IsVisible="{Binding IsEnum}" ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedOption}"
+                          MinWidth="240" IsEnabled="{Binding IsEnabled}" AutomationProperties.Name="{Binding Label}" />
+                <ItemsControl IsVisible="{Binding IsBitmask}" ItemsSource="{Binding Bits}" IsEnabled="{Binding IsEnabled}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="16" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:BitOptionViewModel">
+                            <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{Binding Unit}" Classes="muted" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Grid.Column="2" Classes="id" Text="{Binding IdText}" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Classes="error" Margin="0,3,0,0"
+                       Text="{Binding Error}" IsVisible="{Binding HasError}" TextWrapping="Wrap" />
+        </Grid>
+    </Border>
+</UserControl>

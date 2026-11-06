@@ -32,6 +32,15 @@ Otwarte pytania do specyfikacji są prowadzone w osobnym dokumencie zespołu, po
 - Zapis do urządzenia zawsze wymaga świadomego potwierdzenia użytkownika (pkt 9, 15 Założeń).
 - Logika protokołu musi być testowalna bez portu COM (transport za interfejsem, testy na symulatorze).
 
+## Testowanie bez sprzętu
+
+- `dotnet run --project src/MultiRejestrator.App -- --symulator` – port „SYMULATOR” z urządzeniem w pamięci
+  (`src/MultiRejestrator.Simulator/SimulatedDevice.cs`, dołączany do App jako plik źródłowy).
+- Testy end-to-end w `tests/` łączą `DeviceSession` z `SimulatedDevice` przez `InMemoryTransport`.
+- Wygląd można sprawdzić bez ekranu: Avalonia.Headless + Skia (`UseHeadlessDrawing = false`),
+  `window.CaptureRenderedFrame()`; pętla przez `Dispatcher.UIThread.MainLoop(token)`.
+- Przy budowaniu ustaw `AVALONIA_TELEMETRY_OPTOUT=1`.
+
 ## Polecenia
 
 - Budowanie: `dotnet build`

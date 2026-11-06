@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MultiRejestrator.App.ViewModels"
+             x:Class="MultiRejestrator.App.Views.Pages.CompareView"
+             x:DataType="vm:CompareViewModel">
+    <StackPanel>
+        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+            <TextBlock Classes="h2" Text="Porównanie konfiguracji" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Classes="primary" Content="Program ↔ urządzenie" Command="{Binding CompareWithDeviceCommand}" IsEnabled="{Binding CanCompareDevice}"
+                        ToolTip.Tip="Odczytuje konfigurację z urządzenia tylko do porównania – nic nie jest zapisywane" />
+                <Button Content="Plik ↔ plik…" Command="{Binding CompareFilesCommand}" />
+                <CheckBox Content="tylko różnice" IsChecked="{Binding OnlyDifferences}" Margin="8,0,0,0" />
+            </StackPanel>
+        </Grid>
+        <TextBlock Classes="muted" Text="{Binding Summary}" TextWrapping="Wrap" Margin="0,0,0,14" />
+
+        <Border Classes="card" Padding="0" IsVisible="{Binding HasRows}">
+            <StackPanel>
+                <Border Background="#F9FAFB" BorderBrush="#E6E8EC" BorderThickness="0,0,0,1" Padding="16,8" CornerRadius="12,12,0,0">
+                    <Grid ColumnDefinitions="70,2*,*,*,100" ColumnSpacing="12">
+                        <TextBlock Classes="colhead" Text="ID" />
+                        <TextBlock Grid.Column="1" Classes="colhead" Text="PARAMETR" />
+                        <TextBlock Grid.Column="2" Classes="colhead" Text="{Binding LeftTitle}" />
+                        <TextBlock Grid.Column="3" Classes="colhead" Text="{Binding RightTitle}" />
+                        <TextBlock Grid.Column="4" Classes="colhead" Text="STAN" />
+                    </Grid>
+                </Border>
+                <ItemsControl ItemsSource="{Binding Rows}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CompareRow">
+                            <Border BorderBrush="#F1F3F6" BorderThickness="0,0,0,1" Padding="16,7"
+                                    Background="{Binding IsDifferent, Converter={x:Static vm:DiffBrushConverter.Instance}}">
+                                <Grid ColumnDefinitions="70,2*,*,*,100" ColumnSpacing="12">
+                                    <TextBlock Text="{Binding Id}" Classes="muted small" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Label}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Left}" Classes="mono" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Right}" Classes="mono" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Column="4" Text="{Binding Tag}" FontWeight="SemiBold" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

@@ -8,6 +8,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <Version>0.1.0</Version>
+    <AssemblyTitle>MultiRejestrator – konfigurator</AssemblyTitle>
+    <Company>PRONAL</Company>
     <Product>MultiRejestrator</Product>
     <Copyright>Copyright © 2026</Copyright>
     <NeutralLanguage>pl-PL</NeutralLanguage>

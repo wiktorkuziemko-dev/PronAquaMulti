@@ -1,18 +1,25 @@
 using Avalonia;
-using System;
+using MultiRejestrator.App.Services;
+using MultiRejestrator.App.ViewModels;
 
 namespace MultiRejestrator.App;
 
-sealed class Program
+internal sealed class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
+    // Avalonia: przed AppMain nie wolno używać API zależnych od SynchronizationContext.
     [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        if (args.Contains("--symulator", StringComparer.OrdinalIgnoreCase))
+        {
+            DemoDevice.Enabled = true;
+            MainViewModel.ExtraPorts.Add(DemoDevice.PortName);
+        }
 
-    // Avalonia configuration, don't remove; also used by visual designer.
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    }
+
+    // Konfiguracja Avalonii – używana także przez podgląd w IDE.
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()

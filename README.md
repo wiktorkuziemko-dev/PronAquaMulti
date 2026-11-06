@@ -3,8 +3,8 @@
 Aplikacja okienkowa dla Windows do konfiguracji, odczytu danych i diagnostyki urządzeń
 MultiRejestrator (PronAquaMulti) przez port szeregowy RS232/UART.
 
-> **Stan:** szkielet projektu. Implementacja ruszy po uzgodnieniu otwartych pytań
-> do dokumentacji (protokół, parametry, kod dostępu).
+> **Stan:** wersja robocza 0.1 – pełna konfiguracja, pliki, porównanie, diagnostyka i dane pomiarowe
+> zgodnie z Protokołem rev3871. Luki w Protokole i przyjęte założenia: [`docs/decyzje.md`](docs/decyzje.md).
 
 ## Dokumentacja
 
@@ -42,15 +42,41 @@ dotnet test
 dotnet run --project src/MultiRejestrator.App
 ```
 
-Pojedynczy plik `.exe` dla Windows:
+Pojedynczy plik `.exe` dla Windows (dla 32-bit: `-r win-x86`):
 
 ```bash
 dotnet publish src/MultiRejestrator.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
 ```
 
+## Tryb demonstracyjny (bez urządzenia)
+
+Uruchomienie z parametrem `--symulator` dodaje do listy portów pozycję **SYMULATOR** – urządzenie
+symulowane w pamięci (kod dostępu `000000`). Pozwala przećwiczyć wszystkie funkcje bez sprzętu.
+
+```bash
+dotnet run --project src/MultiRejestrator.App -- --symulator
+```
+
+Symulator można też wystawić na porcie szeregowym (np. jednym z pary wirtualnych portów com0com)
+i łączyć się z nim programem przez drugi port pary:
+
+```bash
+dotnet run --project src/MultiRejestrator.Simulator -- COM10
+```
+
+## Pliki programu
+
+| Plik | Miejsce | Zawartość |
+| --- | --- | --- |
+| `MultiRejestrator.ini` | obok programu | ustawienia: ostatni port, domyślny kod dostępu, opcje |
+| `MultiRejestrator.log` | obok programu | log komunikacji (pełne ramki), nadpisywany przy każdym połączeniu |
+| `*.txt` | wybrane przez użytkownika | konfiguracje urządzeń – czytelny tekst, jeden parametr w wierszu |
+
 ## Gotowy program z GitHub Actions
 
 Każdy push na `main` i każdy pull request uruchamia workflow **Build** (Windows):
-budowanie, testy i publikację. Plik `MultiRejestrator.exe` można pobrać z zakładki
-**Actions** → wybrany przebieg → sekcja **Artifacts** → `MultiRejestrator-win-x64`.
-Program nie wymaga instalacji .NET.
+budowanie, testy i publikację dwóch plików – dla Windows 64- i 32-bitowego. Pliki można pobrać
+z zakładki **Actions** → wybrany przebieg → sekcja **Artifacts** (`MultiRejestrator-win-x64`,
+`MultiRejestrator-win-x86`). Program nie wymaga instalacji .NET.
+
+Wydanie: tag `vX.Y.Z` (zgodny z wersją w `Directory.Build.props`) tworzy GitHub Release z oboma plikami.

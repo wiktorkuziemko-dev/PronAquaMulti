@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MultiRejestrator.App.ViewModels"
+             x:Class="MultiRejestrator.App.Views.Pages.MeasurementsView"
+             x:DataType="vm:MeasurementsViewModel">
+    <StackPanel>
+        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+            <TextBlock Classes="h2" Text="Dane pomiarowe" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="Indeks dnia" VerticalAlignment="Center" Classes="muted" />
+                <TextBox Text="{Binding DayIndex}" Width="90" />
+                <Button Classes="primary" Content="Odczytaj dzień" Command="{Binding ReadCommand}" IsEnabled="{Binding CanRead}" />
+                <Button Content="Eksportuj CSV…" Command="{Binding ExportCommand}" IsEnabled="{Binding HasRows}" />
+            </StackPanel>
+        </Grid>
+        <TextBlock Classes="muted" Text="{Binding Summary}" TextWrapping="Wrap" Margin="0,0,0,14" />
+
+        <Border Classes="card" Padding="18,12" IsVisible="{Binding IsReading}">
+            <StackPanel Spacing="8">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="Odczyt danych pomiarowych…" VerticalAlignment="Center" />
+                    <Button Grid.Column="1" Content="Anuluj" Command="{Binding CancelCommand}" />
+                </Grid>
+                <ProgressBar Value="{Binding Progress}" Maximum="100" Height="8" CornerRadius="4" />
+            </StackPanel>
+        </Border>
+
+        <Border Classes="card" Padding="0">
+            <StackPanel>
+                <Border Background="#F9FAFB" BorderBrush="#E6E8EC" BorderThickness="0,0,0,1" Padding="16,8" CornerRadius="12,12,0,0">
+                    <Grid ColumnDefinitions="110,150,160,170,*">
+                        <TextBlock Classes="colhead" Text="KANAŁ" />
+                        <TextBlock Grid.Column="1" Classes="colhead" Text="TYP WEJŚCIA" />
+                        <Button Grid.Column="2" Classes="link" Padding="0" Command="{Binding ToggleSortCommand}">
+                            <TextBlock Classes="colhead" Text="DATA I CZAS ⇅" />
+                        </Button>
+                        <TextBlock Grid.Column="3" Classes="colhead" Text="WARTOŚĆ" />
+                        <TextBlock Grid.Column="4" Classes="colhead" Text="SZCZEGÓŁY" />
+                    </Grid>
+                </Border>
+                <TextBlock IsVisible="{Binding !HasRows}" Classes="muted" Margin="16,24" Text="Brak danych do wyświetlenia." />
+                <ItemsControl ItemsSource="{Binding Rows}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:MeasureRow">
+                            <Border BorderBrush="#F1F3F6" BorderThickness="0,0,0,1" Padding="16,7">
+                                <Grid ColumnDefinitions="110,150,160,170,*">
+                                    <TextBlock Text="{Binding Channel}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding InputType}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Time}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Value}" FontWeight="Medium" />
+                                    <TextBlock Grid.Column="4" Text="{Binding Details}" Classes="muted" TextTrimming="CharacterEllipsis" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

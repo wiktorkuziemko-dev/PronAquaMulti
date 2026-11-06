@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MultiRejestrator.App.ViewModels"
+             xmlns:v="using:MultiRejestrator.App.Views"
+             x:Class="MultiRejestrator.App.Views.Pages.ChannelPageView"
+             x:DataType="vm:ChannelPageViewModel">
+    <StackPanel>
+        <TextBlock Classes="h2" Text="{Binding Title}" />
+        <TextBlock Classes="muted" Text="{Binding Lead}" TextWrapping="Wrap" MaxWidth="820" HorizontalAlignment="Left" Margin="0,4,0,18" />
+
+        <Border Classes="info" Margin="0,0,0,16" IsVisible="{Binding IsLocked}">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Path Data="M3.5 7h9v6.5h-9zM5.5 7V5a2.5 2.5 0 0 1 5 0v2" Stroke="#1E3A6E" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding LockText}" TextWrapping="Wrap" Foreground="#1E3A6E" Margin="12,0" VerticalAlignment="Center" />
+                <Button Grid.Column="2" Content="Przejdź do kanału nadrzędnego" Command="{Binding GoToOwnerCommand}" />
+            </Grid>
+        </Border>
+
+        <Border Classes="card" Padding="18,12">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto">
+                <TextBlock Text="Typ wejścia" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" />
+                <ComboBox Grid.Column="1" Width="300" ItemsSource="{Binding TypeField.Options}" SelectedItem="{Binding TypeField.SelectedOption}"
+                          IsEnabled="{Binding TypeField.IsEnabled}" AutomationProperties.Name="Typ wejścia" />
+                <TextBlock Grid.Column="2" Classes="id" Text="{Binding TypeField.IdText}" Margin="12,0,0,0" />
+                <Button Grid.Column="4" Content="Kopiuj ustawienia do kanałów…" Command="{Binding CopySettingsCommand}" IsEnabled="{Binding !IsLocked}" />
+            </Grid>
+        </Border>
+
+        <ItemsControl ItemsSource="{Binding Groups}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:InputGroupViewModel">
+                    <Border Classes="card" Padding="0" Margin="0,0,0,12">
+                        <StackPanel>
+                            <Button Classes="ghost" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="18,12"
+                                    CornerRadius="12" Command="{Binding ToggleCommand}">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Path Data="M2 4l4 4 4-4" Stroke="#6B7280" StrokeThickness="1.6" Width="12" Height="12" Stretch="Uniform"
+                                          VerticalAlignment="Center" IsVisible="{Binding IsExpanded}" />
+                                    <Path Data="M4 2l4 4-4 4" Stroke="#6B7280" StrokeThickness="1.6" Width="12" Height="12" Stretch="Uniform"
+                                          VerticalAlignment="Center" IsVisible="{Binding !IsExpanded}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="10,0" FontWeight="SemiBold" FontSize="13.5"
+                                               Foreground="{Binding IsActive, Converter={x:Static vm:ActiveBrushConverter.Instance}}" />
+                                    <Border Grid.Column="2" Background="#DCFCE7" CornerRadius="10" Padding="9,2" IsVisible="{Binding IsActive}">
+                                        <TextBlock Text="aktywne dla wybranego typu" FontSize="11.5" FontWeight="SemiBold" Foreground="#166534" />
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="{Binding StatusText}" Classes="muted small" IsVisible="{Binding !IsActive}" />
+                                </Grid>
+                            </Button>
+                            <StackPanel IsVisible="{Binding IsExpanded}" Margin="0,0,0,8">
+                                <ItemsControl ItemsSource="{Binding Fields}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ParameterFieldViewModel">
+                                            <v:ParameterFieldView />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Border IsVisible="{Binding HasAlarms}" Background="#FAFBFC" CornerRadius="10" Margin="12,6,12,4" Padding="16,8,16,12">
+                                    <StackPanel Spacing="6">
+                                        <Grid ColumnDefinitions="64,150,150,*,*" ColumnSpacing="10">
+                                            <TextBlock Classes="colhead" Text="ALARM" />
+                                            <TextBlock Grid.Column="1" Classes="colhead" Text="{Binding Unit, StringFormat='WYWOŁANIE [{0}]'}" />
+                                            <TextBlock Grid.Column="2" Classes="colhead" Text="{Binding Unit, StringFormat='ODWOŁANIE [{0}]'}" />
+                                            <TextBlock Grid.Column="3" Classes="colhead" Text="SYGNALIZACJA" />
+                                            <TextBlock Grid.Column="4" Classes="colhead" Text="KIERUNEK WYWOŁANIA" />
+                                        </Grid>
+                                        <ItemsControl ItemsSource="{Binding Alarms}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:AlarmRowViewModel">
+                                                    <Grid ColumnDefinitions="64,150,150,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" Margin="0,3">
+                                                        <TextBlock Text="{Binding Number}" FontWeight="SemiBold" VerticalAlignment="Center" ToolTip.Tip="{Binding IdsText}" />
+                                                        <TextBox Grid.Column="1" Text="{Binding On.Value}" IsEnabled="{Binding On.IsEnabled}" AutomationProperties.Name="Próg wywołania" />
+                                                        <TextBox Grid.Column="2" Text="{Binding Off.Value}" IsEnabled="{Binding Off.IsEnabled}" AutomationProperties.Name="Próg odwołania" />
+                                                        <ComboBox Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding Activity.Options}" SelectedItem="{Binding Activity.SelectedOption}" IsEnabled="{Binding Activity.IsEnabled}" AutomationProperties.Name="Sygnalizacja" />
+                                                        <ComboBox Grid.Column="4" HorizontalAlignment="Stretch" ItemsSource="{Binding Direction.Options}" SelectedItem="{Binding Direction.SelectedOption}" IsEnabled="{Binding Direction.IsEnabled}" AutomationProperties.Name="Kierunek" />
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" Classes="error" Margin="0,3,0,0" TextWrapping="Wrap"
+                                                                   Text="{Binding On.Error}" IsVisible="{Binding On.HasError}" />
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" Classes="error" Margin="0,3,0,0" TextWrapping="Wrap"
+                                                                   Text="{Binding Off.Error}" IsVisible="{Binding Off.HasError}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>
