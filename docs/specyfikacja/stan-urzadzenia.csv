@@ -1,0 +1,16 @@
+id;rozmiar_B;typ;prezentacja;nazwa;jednostka;wartosci;uwagi
+1;1;u8;number;Poziom sygnału GSM;CSQ;;CSQ 0–31
+2;1;u8;number;Kod błędu komunikacji GSM;;;Wyświetlany jako liczba
+3;1;u8;enum;Stan modułu GSM;;"1=wyłączony; 2=włączony, niezarejestrowany w sieci; 3=włączony, zarejestrowany w sieci";W oryginale typ unsigned short przy Size 1 – dekodowany według pola Size
+4;20;ascii;text;ICCID;;;Format ASCII
+5;15;ascii;text;IMSI;;;Format ASCII
+6;15;ascii;text;IMEI;;;Format ASCII
+7;4;u32;number;Numer pasma pracy modułu GSM;;;
+8;4;u32;number;Cell ID;;;
+9;4;u32;duration;Czas od ostatniego resetu;s;;
+10;1;u8;number;Przyczyna ostatniego resetu;;;Wyświetlana jako liczba
+11;2;u16;millivolts;Napięcie baterii zasilającej przy obciążeniu;mV;;
+12;1;u8;enum;Źródło zasilania;;"1=bateria wewnętrzna; 2=Battery Pack; 3=Power Pack – zasilanie z AKU; 4=Power Pack – zasilanie sieciowe";
+13;2;u16;millivolts;Napięcie stabilizowane;mV;;
+14;1;u8;enum;Stan sabotażu;;"0=brak; 1=otwarcie pokrywki";
+15;1;i8;number;Aktualna temperatura;°C;;Skala 1 °C, spójna z Id 28 konfiguracji

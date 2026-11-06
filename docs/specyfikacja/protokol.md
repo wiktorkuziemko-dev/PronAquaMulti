@@ -1,7 +1,7 @@
 # Protokół Komunikacyjny PronAquaMulti v1.0
 
-> Transkrypcja dokumentu `docs/zrodla/Protokol_Komunikacyjny_PronAquaMulti_v1.0_rev3821.pdf`
-> (autor: INTSOL, Warszawa, 28.10.2026) do Markdown. W razie rozbieżności rozstrzyga oryginał.
+> Transkrypcja dokumentu `docs/zrodla/Protokol_Komunikacyjny_PronAquaMulti_v1.0_rev3871.pdf`
+> (autor: INTSOL, Warszawa, 5.11.2026) do Markdown. W razie rozbieżności rozstrzyga oryginał.
 > Treść przepisana bez zmian merytorycznych; oczywiste literówki w nazwach typów poprawiono.
 > Uwagi transkrypcji oznaczone są jako **[Uwaga]** – to nie jest treść oryginału.
 > Pełna lista parametrów konfiguracyjnych w formie danych: [`parametry.csv`](parametry.csv).
@@ -69,11 +69,15 @@ w przypadku gdy ciąg jest krótszy niż dedykowany dla niego obszar pamięci.
 | REQ_SET_CONF | 0x0012 | RE_REQ_SET_CONF | 0x8012 | 0–1024 B | 0 B | 1.2.6 |
 | REQ_GET_TIME | 0x0013 | RE_REQ_GET_TIME | 0x8013 | 0 B | 4 B | 1.2.7 |
 | REQ_SET_TIME | 0x0014 | RE_REQ_SET_TIME | 0x8014 | 4 B | 0 B | 1.2.7 |
-| REQ_UPDATE_FW | 0x0051 | RE_REQ_UPDATE_FW | 0x8051 | 8 B | 1 B | 1.2.8 |
-| REQ_GET_FW_CRC | 0x0052 | RE_REQ_GET_FW_CRC | 0x8052 | 8 B | 4 B | 1.2.9 |
-| REQ_GET_FW_PARAMS | 0x0053 | RE_REQ_GET_FW_PARAMS | 0x8053 | 0 B | 8 B | 1.2.10 |
-| REQ_SAVE_FW_N_PACKETS | 0x0054 | RE_REQ_SAVE_FW_N_PACKETS | 0x8054 | 5–1029 B | 0 B | 1.2.11 |
-| REQ_CLEAR_ALL_FW_DATA | 0x0055 | RE_REQ_CLEAR_ALL_FW_DATA | 0x8055 | 0 B | 0 B | 1.2.12 |
+| REQ_DEVICE_STATE | 0x0015 | RE_REQ_DEVICE_STATE | 0x8015 | 0–20 B | 0–1024 B | 1.2.8 |
+| REQ_REPORT_ON_DEMAND | 0x0016 | RE_REQ_REPORT_ON_DEMAND | 0x8016 | 2 B | 2 B | 1.2.9 |
+| REQ_MONITOR_GSM | 0x0017 | RE_REQ_MONITOR_GSM | 0x8017 | 0 B | 0 B | 1.2.10 |
+| REQ_GET_MEASURE_REPORT | 0x0018 | RE_REQ_GET_MEASURE_REPORT | 0x8018 | 6 B | min. 18 B | 1.2.11 |
+| REQ_UPDATE_FW | 0x0051 | RE_REQ_UPDATE_FW | 0x8051 | 8 B | 1 B | 1.2.12 |
+| REQ_GET_FW_CRC | 0x0052 | RE_REQ_GET_FW_CRC | 0x8052 | 8 B | 4 B | 1.2.13 |
+| REQ_GET_FW_PARAMS | 0x0053 | RE_REQ_GET_FW_PARAMS | 0x8053 | 0 B | 8 B | 1.2.14 |
+| REQ_SAVE_FW_N_PACKETS | 0x0054 | RE_REQ_SAVE_FW_N_PACKETS | 0x8054 | 5–1029 B | 0 B | 1.2.15 |
+| REQ_CLEAR_ALL_FW_DATA | 0x0055 | RE_REQ_CLEAR_ALL_FW_DATA | 0x8055 | 0 B | 0 B | 1.2.16 |
 
 > **[Uwaga]** Kod odpowiedzi = kod zapytania | 0x8000.
 
@@ -263,7 +267,7 @@ Wspólne listy wartości używane niżej:
 | 1010 | 2 | Wartość progu wywołania 1 alarmu dla wejścia analogowego 2,5 V kanału N [mV] (unsigned short) |
 | 1011 | 2 | Wartość progu odwołania 1 alarmu dla wejścia analogowego 2,5 V kanału N [mV] (unsigned short) |
 | 1012 | 2 | Wartość progu wywołania 2 alarmu dla wejścia analogowego 2,5 V kanału N [mV] (unsigned short) |
-| 1013 | 2 | Wartość progu odwołania 2 alarmu dla wejścia analogowego 2,5 V kanału N **[ms]** (unsigned short) **[Uwaga: w oryginale „ms”, prawdopodobnie „mV”]** |
+| 1013 | 2 | Wartość progu odwołania 2 alarmu dla wejścia analogowego 2,5 V kanału N [mV] (unsigned short) **[Uwaga: w oryginale „ms” – INTSOL potwierdziło literówkę]** |
 | 1014 | 2 | Wartość progu wywołania 3 alarmu dla wejścia analogowego 2,5 V kanału N [mV] (unsigned short) |
 | 1015 | 2 | Wartość progu odwołania 3 alarmu dla wejścia analogowego 2,5 V kanału N [mV] (unsigned short) |
 | 1016 | 2 | Wartość progu wywołania 4 alarmu dla wejścia analogowego 2,5 V kanału N [mV] (unsigned short) |
@@ -339,7 +343,113 @@ Pole DATA RE_REQ_GET_TIME i REQ_SET_TIME:
 | Time | 4 | Czas – timestamp (1 × unsigned long) |
 | SUMA | 4 | |
 
-#### 1.2.8. Ramka Firmware Update
+#### 1.2.8. Ramka Device State
+
+Ramka pobierająca stan urządzenia.
+
+| | Zapytanie | Odpowiedź |
+| --- | --- | --- |
+| Nazwa komendy | REQ_DEVICE_STATE | RE_REQ_DEVICE_STATE |
+| Typ (pole TYPE) | 0x0015 | 0x8015 |
+| Rozmiar pola DATA | 0–20 B | 0–1024 B |
+
+Parametry przesyłane są w blokach **ConfBlock** o takiej samej budowie jak w ramce Configuration
+(Id 2 B, Size 2 B, Value). Zapytanie zawiera tablicę do 10 numerów Id (unsigned short), odpowiedź
+od 0 do 10 bloków ConfBlock.
+
+> **[Uwaga]** W oryginale opisy pól DATA noszą nazwy REQ_GET_DEVICE_STATE / RE_REQ_GET_DEVICE_STATE.
+> Numery Id stanu urządzenia są niezależne od numerów Id parametrów konfiguracyjnych.
+> Lista w formie danych: [`stan-urzadzenia.csv`](stan-urzadzenia.csv).
+
+| Id | Size | Value |
+| --- | --- | --- |
+| 1 | 1 | Poziom sygnału GSM (unsigned char) |
+| 2 | 1 | Kod błędu komunikacji GSM (unsigned char) |
+| 3 | 1 | Stan modułu GSM (w oryginale: unsigned short przy Size 1): 1 – wyłączony; 2 – włączony, niezarejestrowany w sieci; 3 – włączony, zarejestrowany w sieci |
+| 4 | 20 | ICCID (20 × unsigned char) |
+| 5 | 15 | IMSI (15 × unsigned char) |
+| 6 | 15 | IMEI (15 × unsigned char) |
+| 7 | 4 | Numer pasma pracy modułu GSM (unsigned long) |
+| 8 | 4 | Cell ID (unsigned long) |
+| 9 | 4 | Czas od ostatniego resetu [s] (unsigned long) |
+| 10 | 1 | Przyczyna ostatniego resetu (unsigned char) |
+| 11 | 2 | Napięcie baterii zasilającej przy obciążeniu [mV] (unsigned short) |
+| 12 | 1 | Źródło zasilania (unsigned char): 1 – bateria wewnętrzna; 2 – Battery Pack; 3 – Power Pack, zasilanie z AKU; 4 – Power Pack, zasilanie sieciowe |
+| 13 | 2 | Napięcie stabilizowane [mV] (unsigned short) |
+| 14 | 1 | Stan sabotażu (unsigned char): 0 – brak; 1 – otwarcie pokrywki |
+| 15 | 1 | Aktualna temperatura [°C] (signed char) |
+
+#### 1.2.9. Ramka Report On Demand
+
+Ramka generująca raport na żądanie.
+
+| | Zapytanie | Odpowiedź |
+| --- | --- | --- |
+| Nazwa komendy | REQ_REPORT_ON_DEMAND | RE_REQ_REPORT_ON_DEMAND |
+| Typ (pole TYPE) | 0x0016 | 0x8016 |
+| Rozmiar pola DATA | 2 B | 2 B |
+
+| Pole | Rozmiar [B] | Jednostka | Opis |
+| --- | --- | --- | --- |
+| Delay (zapytanie) | 2 | s | Opóźnienie wysłania raportu na żądanie (unsigned short) |
+| Report ID (odpowiedź) | 2 | – | ID raportu na żądanie (unsigned short) |
+
+#### 1.2.10. Ramka Monitor GSM
+
+Ramka uruchamiająca monitor GSM.
+
+| | Zapytanie | Odpowiedź |
+| --- | --- | --- |
+| Nazwa komendy | REQ_MONITOR_GSM | RE_REQ_MONITOR_GSM |
+| Typ (pole TYPE) | 0x0017 | 0x8017 |
+| Rozmiar pola DATA | 0 B | 0 B |
+
+> **[Uwaga]** Protokół nie opisuje ramki zatrzymującej monitor GSM.
+
+#### 1.2.11. Ramka Measure Report
+
+Ramka pobierająca zapamiętane dane pomiarowe.
+
+| | Zapytanie | Odpowiedź |
+| --- | --- | --- |
+| Nazwa komendy | REQ_GET_MEASURE_REPORT | RE_REQ_GET_MEASURE_REPORT |
+| Typ (pole TYPE) | 0x0018 | 0x8018 |
+| Rozmiar pola DATA | 6 B | min. 18 B |
+
+Pole DATA REQ_GET_MEASURE_REPORT:
+
+| Parametr | Rozmiar [B] | Opis |
+| --- | --- | --- |
+| Day Index | 4 | Numer indeksu dnia pomiarowego (unsigned long) |
+| Start Minute Index | 2 | Numer minuty dnia, od której następuje żądanie przesłania danych (unsigned short) |
+| SUMA | 6 | |
+
+Pole DATA RE_REQ_GET_MEASURE_REPORT:
+
+| Parametr | Rozmiar [B] | Opis |
+| --- | --- | --- |
+| Day Index | 4 | W oryginale: „ID raportu na żądanie (unsigned short)” – prawdopodobnie numer indeksu dnia (unsigned long) |
+| Day Buff Size | 4 | Rozmiar dzienny bufora danych pomiarowych (unsigned long) |
+| Time | 4 | Czas (Epoch) dnia pomiarowego (unsigned long) |
+| Input type | 1 | Typ wejścia kanału (unsigned char): 0 – nieaktywne; 1 – cyfrowe impulsowe; 2 – cyfrowe binarne; 3 – analogowe 2,5 V; 4 – analogowe 10 V; 5 – analogowe 4–20 mA |
+| Channel Nb | 1 | Numer kanału (1–8) (unsigned char) |
+| Report Number | 4 | Liczba przesłanych raportów |
+| RepBlock[Report Number] | – | Bloki danych raportów |
+| SUMA | 18 + bloki | |
+
+Bloki **RepBlock**:
+
+| Typ wejścia | Pola |
+| --- | --- |
+| Impulsowe | Minute index (2 B, unsigned short – numer minuty dnia); Counter (4 B, signed long – wartość licznika) |
+| Binarne | Minute index (2 B); State (1 B, unsigned char: 0 – stan niski, 1 – stan wysoki) |
+| Analogowe | Minute index (2 B); Stab Status (1 B: 0 – błąd stabilizacji, 1 – stabilizacja poprawna); Stab Time (2 B, signed short, ms); Min Value (2 B, signed short); Max Value (2 B, signed short); Mean Value (2 B, signed short) |
+
+> **[Uwaga]** Zapytanie nie zawiera numeru kanału, a odpowiedź opisuje jeden kanał (Channel Nb).
+> Nie opisano, jak pobrać dane pozostałych kanałów ani jak wykryć koniec danych dnia.
+> Rozmiar bloku nieaktywnego kanału (typ 0) nie jest określony. Patrz `docs/decyzje.md`.
+
+#### 1.2.12. Ramka Firmware Update
 
 Ramka wysyłająca rozkaz rozpoczęcia wymiany firmware'u.
 
@@ -364,7 +474,7 @@ Pole DATA RE_REQ_UPDATE_FW:
 | Error | 1 | Status poprawności danych: 0 – dane poprawne; 1 – niepoprawne dane |
 | SUMA | 1 | |
 
-#### 1.2.9. Ramka Firmware CRC
+#### 1.2.13. Ramka Firmware CRC
 
 Ramka pobierająca sumę kontrolną z przesłanych danych nowego firmware'u. Suma kontrolna liczona
 jest z danych umieszczonych w pamięci flash w zadanym rozmiarze.
@@ -390,7 +500,7 @@ Pole DATA RE_REQ_GET_FW_CRC:
 | CRC | 4 | Suma kontrolna wyliczona algorytmem CRC-32 (wielomian 0x04C11DB7) (1 × unsigned long) |
 | SUMA | 4 | |
 
-#### 1.2.10. Ramka Firmware Params
+#### 1.2.14. Ramka Firmware Params
 
 Ramka pobierająca informację o parametrach firmware'u możliwego do przesłania do urządzenia.
 
@@ -408,7 +518,7 @@ Pole DATA RE_REQ_GET_FW_PARAMS (w oryginale opisane jako RE_REQ_GET_FW_CRC):
 | Packet Number | 4 | – | Liczba pakietów danych możliwa do przesłania (1 × unsigned long) |
 | SUMA | 8 | | |
 
-#### 1.2.11. Ramka Firmware Packet N-size
+#### 1.2.15. Ramka Firmware Packet N-size
 
 Ramka wysyłająca większą liczbę pakietów danych firmware'u.
 
@@ -427,7 +537,7 @@ Pole DATA REQ_SAVE_FW_N_PACKETS:
 | Fw Data[0–192] | 0–1024 | Dane pakietu |
 | SUMA | 5–1029 | |
 
-#### 1.2.12. Ramka Clear All Firmware Data
+#### 1.2.16. Ramka Clear All Firmware Data
 
 Ramka czyszcząca bufor tymczasowy bootloadera.
 

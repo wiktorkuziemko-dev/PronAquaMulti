@@ -1,91 +1,91 @@
-id;kanal;rozmiar_B;typ;nazwa;jednostka;wartosci;maska_bitowa;grupa_wejscia;min;max;domyslna;pytania;uwagi
-1;nie;4;u32;Numer seryjny urządzenia;;;nie;;;;;"4.2.1; 4.1.6";
-2;nie;6;bytes;Kod dostępu;;;nie;;;;;"4.2.2; 5.1-5.4";
-3;nie;2;u16;Numer odbiorcy;;;nie;;;;;4.2.3;
-4;nie;1;u8;Rodzaj anteny;;;nie;;;;;4.2.4;
-5;nie;1;u8;Wybór modułu i tryb jego pracy;;"1=SIM7080G CAT-M1; 2=SIM7080G NB; 3=SIM7080G CAT-M1+NB; 4=BG770A-GL CAT-M1; 5=BG770A-GL NB; 6=BG770A-GL CAT-M1+NB; 7=SIM7082G CAT-M1; 8=SIM7082G NB; 9=SIM7082G CAT-M1+NB";nie;;;;;4.2.5;
-6;nie;4;bytes;Kod PIN;;;nie;;;;;4.2.6;
-7;nie;18;ascii;APN nazwa;;;nie;;;;;4.1.4;
-8;nie;18;ascii;APN użytkownik;;;nie;;;;;4.1.4;
-9;nie;18;ascii;APN hasło;;;nie;;;;;"4.1.4; 4.1.7";
-10;nie;4;u32;Wybór pasma dla CAT-M1 w postaci mapy bitów;;"0x01=B3; 0x02=B8; 0x04=B20";tak;;;;;4.2.7;
-11;nie;4;u32;Wybór pasma dla NB w postaci mapy bitów;;"0x01=B3; 0x02=B8; 0x04=B20";tak;;;;;4.2.7;
-12;nie;1;u8;Zezwolenie na roaming;;"0=brak zezwolenia; 1=zezwolenie";nie;;;;;;
-13;nie;4;u32;Maksymalny czas trwania pojedynczej sesji;s;;nie;;;;;4.2.8;
-14;nie;4;u32;Interwał wybudzania w trybie PSM;s;;nie;;;;;4.2.8;
-15;nie;4;u32;Interwał aktywności w trybie eDRX;s;;nie;;;;;4.2.8;
-16;nie;32;ascii;URL podstawowy;;;nie;;;;;4.2.9;
-17;nie;32;ascii;URL rezerwowy;;;nie;;;;;4.2.9;
-18;nie;32;ascii;MQTT URL;;;nie;;;;;4.2.9;
-19;nie;2;u16;MQTT Port;;;nie;;;;;;
-20;nie;32;ascii;MQTT Client ID;;;nie;;;;;;
-21;nie;32;ascii;MQTT Username;;;nie;;;;;;
-22;nie;32;ascii;MQTT Password;;;nie;;;;;4.1.7;
-23;nie;32;ascii;MQTT Sent Topic;;;nie;;;;;;
-24;nie;1;u8;Wybór protokołu;;"1=TCP; 2=HTTPS; 3=MQTT; 4=FTP; 5=SFTP";nie;;;;;4.2.10;
-25;nie;1;u8;Wybór formatu danych w raporcie;;"1=Bin (protokół własny V12); 2=JSON; 3=CSV; 4=XML";nie;;;;;4.2.11;
-26;nie;32;bytes;Klucz szyfrowania AES;;;nie;;;;;"4.2.12; 4.1.7";
-27;nie;4;u32;Czas na stabilizację wejścia sabotażu otwarcia pokrywy;s;;nie;;;;;;
-28;nie;2;i16;Wartość kalibracyjna temperatury;°C;;nie;;;;;4.2.13;
-29;nie;50;ascii;Symbol;;;nie;;;;;4.2.14;
-1001;tak;1;u8;Typ wejścia kanału N;;"0=nieaktywne; 1=cyfrowe impulsowe; 2=cyfrowe binarne; 3=analogowe 2,5 V; 4=analogowe 10 V; 5=analogowe 4–20 mA";nie;wszystkie;;;;4.3.1;
-1002;tak;1;u8;Tryb pracy dla wejścia impulsowego kanału N;;"0=podstawowy; 1=sprzężony zliczanie: impulsy do przodu, impulsy do tyłu; 2=sprzężony zliczanie: impulsy, kierunek poziom wysoki inkrementacja; 3=sprzężony zliczanie: impulsy, kierunek poziom niski inkrementacja";nie;impulsowe;;;;4.3.2;
-1003;tak;2;u16;Minimalna długość impulsu dla wejścia impulsowego kanału N;ms;;nie;impulsowe;;;;;
-1004;tak;1;u8;Dziesiętny mnożnik wagi impulsu dla wejścia impulsowego kanału N;;"0=×1; 1=×10; 2=×100; 3=×1000";nie;impulsowe;;;;4.3.3;
-1005;tak;2;u16;Czas braku impulsów dla wejścia impulsowego kanału N;min;;nie;impulsowe;;;;4.3.4;
-1006;tak;1;u8;Poziom przełączania wejścia binarnego kanału N;100 mV;;nie;binarne;;;;4.3.5;
-1007;tak;1;u8;Aktywność sygnalizacji przejścia wejścia binarnego kanału N;;"0=brak; 1=na stan wysoki; 2=na stan niski; 3=na stan wysoki i niski";nie;binarne;;;;;Typ nie podany w oryginale (rozmiar 1 B)
-1008;tak;2;u16;Czas na stabilizację nowego stanu wejścia binarnego kanału N;ms;;nie;binarne;;;;;
-1009;tak;2;u16;Czas martwy od momentu włączenia czujnika do rozpoczęcia odczytu dla wejścia analogowego 2,5 V kanału N;ms;;nie;analog_2_5V;;;;;
-1010;tak;2;u16;Wartość progu wywołania 1 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;nie;analog_2_5V;;;;4.3.8;
-1011;tak;2;u16;Wartość progu odwołania 1 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;nie;analog_2_5V;;;;4.3.8;
-1012;tak;2;u16;Wartość progu wywołania 2 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;nie;analog_2_5V;;;;4.3.8;
-1013;tak;2;u16;Wartość progu odwołania 2 alarmu dla wejścia analogowego 2,5 V kanału N;ms;;nie;analog_2_5V;;;;4.3.6;W oryginale jednostka [ms], prawdopodobnie [mV]
-1014;tak;2;u16;Wartość progu wywołania 3 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;nie;analog_2_5V;;;;4.3.8;
-1015;tak;2;u16;Wartość progu odwołania 3 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;nie;analog_2_5V;;;;4.3.8;
-1016;tak;2;u16;Wartość progu wywołania 4 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;nie;analog_2_5V;;;;4.3.8;
-1017;tak;2;u16;Wartość progu odwołania 4 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;nie;analog_2_5V;;;;4.3.8;
-1018;tak;1;u8;Aktywność sygnalizacji alarmu 1 dla wejścia analogowego 2,5 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_2_5V;;;;;
-1019;tak;1;u8;Aktywność sygnalizacji alarmu 2 dla wejścia analogowego 2,5 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_2_5V;;;;;
-1020;tak;1;u8;Aktywność sygnalizacji alarmu 3 dla wejścia analogowego 2,5 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_2_5V;;;;;
-1021;tak;1;u8;Aktywność sygnalizacji alarmu 4 dla wejścia analogowego 2,5 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_2_5V;;;;;
-1022;tak;1;u8;Kierunek sygnalizacji alarmu 1 dla wejścia analogowego 2,5 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_2_5V;;;;;
-1023;tak;1;u8;Kierunek sygnalizacji alarmu 2 dla wejścia analogowego 2,5 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_2_5V;;;;;
-1024;tak;1;u8;Kierunek sygnalizacji alarmu 3 dla wejścia analogowego 2,5 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_2_5V;;;;;
-1025;tak;1;u8;Kierunek sygnalizacji alarmu 4 dla wejścia analogowego 2,5 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_2_5V;;;;;
-1026;tak;2;u16;Czas martwy od momentu włączenia czujnika do rozpoczęcia odczytu dla wejścia analogowego 10 V kanału N;ms;;nie;analog_10V;;;;;
-1027;tak;2;u16;Wartość progu wywołania 1 alarmu dla wejścia analogowego 10 V kanału N;mV;;nie;analog_10V;;;;4.3.8;
-1028;tak;2;u16;Wartość progu odwołania 1 alarmu dla wejścia analogowego 10 V kanału N;mV;;nie;analog_10V;;;;4.3.8;
-1029;tak;2;u16;Wartość progu wywołania 2 alarmu dla wejścia analogowego 10 V kanału N;mV;;nie;analog_10V;;;;4.3.8;
-1030;tak;2;u16;Wartość progu odwołania 2 alarmu dla wejścia analogowego 10 V kanału N;mV;;nie;analog_10V;;;;4.3.8;
-1031;tak;2;u16;Wartość progu wywołania 3 alarmu dla wejścia analogowego 10 V kanału N;mV;;nie;analog_10V;;;;4.3.8;
-1032;tak;2;u16;Wartość progu odwołania 3 alarmu dla wejścia analogowego 10 V kanału N;mV;;nie;analog_10V;;;;4.3.8;
-1033;tak;2;u16;Wartość progu wywołania 4 alarmu dla wejścia analogowego 10 V kanału N;mV;;nie;analog_10V;;;;4.3.8;
-1034;tak;2;u16;Wartość progu odwołania 4 alarmu dla wejścia analogowego 10 V kanału N;mV;;nie;analog_10V;;;;4.3.8;
-1035;tak;1;u8;Aktywność sygnalizacji alarmu 1 dla wejścia analogowego 10 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_10V;;;;;
-1036;tak;1;u8;Aktywność sygnalizacji alarmu 2 dla wejścia analogowego 10 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_10V;;;;;
-1037;tak;1;u8;Aktywność sygnalizacji alarmu 3 dla wejścia analogowego 10 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_10V;;;;;
-1038;tak;1;u8;Aktywność sygnalizacji alarmu 4 dla wejścia analogowego 10 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_10V;;;;;
-1039;tak;1;u8;Kierunek sygnalizacji alarmu 1 dla wejścia analogowego 10 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_10V;;;;;
-1040;tak;1;u8;Kierunek sygnalizacji alarmu 2 dla wejścia analogowego 10 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_10V;;;;;
-1041;tak;1;u8;Kierunek sygnalizacji alarmu 3 dla wejścia analogowego 10 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_10V;;;;;
-1042;tak;1;u8;Kierunek sygnalizacji alarmu 4 dla wejścia analogowego 10 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_10V;;;;;
-1043;tak;2;u16;Czas martwy od momentu włączenia czujnika do rozpoczęcia odczytu dla wejścia analogowego 4–20 mA kanału N;ms;;nie;analog_4_20mA;;;;;
-1044;tak;2;u16;Maksymalny czas stabilizacji prądu dla wejścia analogowego 4–20 mA kanału N;ms;;nie;analog_4_20mA;;;;4.3.10;
-1045;tak;1;u8;Procentowa granica wahań prądu dla wejścia analogowego 4–20 mA kanału N;%;;nie;analog_4_20mA;;;;4.3.10;
-1046;tak;2;u16;Wartość progu wywołania 1 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;nie;analog_4_20mA;;;;"4.3.7; 4.3.8";
-1047;tak;2;u16;Wartość progu odwołania 1 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;nie;analog_4_20mA;;;;"4.3.7; 4.3.8";
-1048;tak;2;u16;Wartość progu wywołania 2 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;nie;analog_4_20mA;;;;"4.3.7; 4.3.8";
-1049;tak;2;u16;Wartość progu odwołania 2 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;nie;analog_4_20mA;;;;"4.3.7; 4.3.8";
-1050;tak;2;u16;Wartość progu wywołania 3 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;nie;analog_4_20mA;;;;"4.3.7; 4.3.8";
-1051;tak;2;u16;Wartość progu odwołania 3 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;nie;analog_4_20mA;;;;"4.3.7; 4.3.8";
-1052;tak;2;u16;Wartość progu wywołania 4 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;nie;analog_4_20mA;;;;"4.3.7; 4.3.8";
-1053;tak;2;u16;Wartość progu odwołania 4 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;nie;analog_4_20mA;;;;"4.3.7; 4.3.8";
-1054;tak;1;u8;Aktywność sygnalizacji alarmu 1 dla wejścia analogowego 4–20 mA kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_4_20mA;;;;;
-1055;tak;1;u8;Aktywność sygnalizacji alarmu 2 dla wejścia analogowego 4–20 mA kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_4_20mA;;;;;
-1056;tak;1;u8;Aktywność sygnalizacji alarmu 3 dla wejścia analogowego 4–20 mA kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_4_20mA;;;;;
-1057;tak;1;u8;Aktywność sygnalizacji alarmu 4 dla wejścia analogowego 4–20 mA kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";nie;analog_4_20mA;;;;;
-1058;tak;1;u8;Kierunek sygnalizacji alarmu 1 dla wejścia analogowego 4–20 mA kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_4_20mA;;;;;
-1059;tak;1;u8;Kierunek sygnalizacji alarmu 2 dla wejścia analogowego 4–20 mA kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_4_20mA;;;;;
-1060;tak;1;u8;Kierunek sygnalizacji alarmu 3 dla wejścia analogowego 4–20 mA kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_4_20mA;;;;;
-1061;tak;1;u8;Kierunek sygnalizacji alarmu 4 dla wejścia analogowego 4–20 mA kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";nie;analog_4_20mA;;;;;
+id;kanal;rozmiar_B;typ;edycja;nazwa;jednostka;wartosci;grupa_wejscia;sekcja;min;max;domyslna;uwagi
+1;nie;4;u32;bcd;Numer seryjny urządzenia;;;;ogolne;0;99999999;00000000;Wyświetlany i wpisywany jako 8 cyfr BCD (little endian)
+2;nie;6;ascii;text;Kod dostępu;;;;ogolne;6;6;(z ustawień programu);"Dowolne znaki ASCII, dokładnie 6; fabrycznie 000000. Nie jest wysyłany z konfiguracją – osobna operacja zmiany kodu"
+3;nie;2;ascii;text;Numer odbiorcy;;;;ogolne;0;2;;2 znaki ASCII, w transmisji 2 bajty little endian
+4;nie;1;ascii;text;Rodzaj anteny;;;;ogolne;0;1;;Jeden widzialny znak ASCII
+5;nie;1;u8;enum;Wybór modułu i tryb jego pracy;;"0=Brak; 1=SIM7080G CAT-M1; 2=SIM7080G NB; 3=SIM7080G CAT-M1+NB; 4=BG770A-GL CAT-M1; 5=BG770A-GL NB; 6=BG770A-GL CAT-M1+NB; 7=SIM7082G CAT-M1; 8=SIM7082G NB; 9=SIM7082G CAT-M1+NB";;modem;0;255;0;
+6;nie;4;ascii;digits;Kod PIN;;;;modem;4;4;1234;Tylko cyfry ASCII
+7;nie;18;ascii;text;APN nazwa;;;;apn;0;18;;
+8;nie;18;ascii;text;APN użytkownik;;;;apn;0;18;;
+9;nie;18;ascii;text;APN hasło;;;;apn;0;18;;
+10;nie;4;u32;bitmask;Wybór pasma dla CAT-M1 w postaci mapy bitów;;"0x01=B3; 0x02=B8; 0x04=B20";;modem;0;4294967295;7;Zawsze co najmniej jedno pasmo (walidacja). ZAŁOŻENIE: domyślnie wszystkie pasma (0x07), bo 0 łamie regułę
+11;nie;4;u32;bitmask;Wybór pasma dla NB w postaci mapy bitów;;"0x01=B3; 0x02=B8; 0x04=B20";;modem;0;4294967295;7;Zawsze co najmniej jedno pasmo (walidacja). ZAŁOŻENIE: domyślnie wszystkie pasma (0x07), bo 0 łamie regułę
+12;nie;1;u8;enum;Zezwolenie na roaming;;"0=brak zezwolenia; 1=zezwolenie";;modem;0;255;0;
+13;nie;4;u32;number;Maksymalny czas trwania pojedynczej sesji;s;;;modem;0;4294967295;0;
+14;nie;4;u32;number;Interwał wybudzania w trybie PSM;s;;;modem;0;4294967295;0;
+15;nie;4;u32;number;Interwał aktywności w trybie eDRX;s;;;modem;0;4294967295;0;
+16;nie;32;ascii;text;URL podstawowy;;;;serwery;0;32;;
+17;nie;32;ascii;text;URL rezerwowy;;;;serwery;0;32;;
+18;nie;32;ascii;text;MQTT URL;;;;serwery;0;32;;
+19;nie;2;u16;number;MQTT Port;;;;serwery;0;65535;0;
+20;nie;32;ascii;text;MQTT Client ID;;;;serwery;0;32;;
+21;nie;32;ascii;text;MQTT Username;;;;serwery;0;32;;
+22;nie;32;ascii;text;MQTT Password;;;;serwery;0;32;;
+23;nie;32;ascii;text;MQTT Sent Topic;;;;serwery;0;32;;
+24;nie;1;u8;enum;Wybór protokołu;;"0=nie wybrano; 1=TCP; 2=HTTPS; 3=MQTT; 4=FTP; 5=SFTP";;transmisja;0;255;0;
+25;nie;1;u8;enum;Wybór formatu danych w raporcie;;"0=nie wybrano; 1=Bin (protokół własny V12); 2=JSON; 3=CSV; 4=XML";;transmisja;0;255;0;
+26;nie;32;bytes;hex;Klucz szyfrowania AES;;;;transmisja;64;64;0000000000000000000000000000000000000000000000000000000000000000;"Wpisywany jako 64 znaki hex; domyślnie same zera"
+27;nie;4;u32;number;Czas na stabilizację wejścia sabotażu otwarcia pokrywy;s;;;ogolne;0;4294967295;0;
+28;nie;2;i16;number;Wartość kalibracyjna temperatury;°C;;;ogolne;-32768;32767;0;Skala 1 °C
+29;nie;50;ascii;text;Symbol;;;;ogolne;0;50;;ASCII bez polskich znaków
+1001;tak;1;u8;enum;Typ wejścia kanału N;;"0=nieaktywne; 1=cyfrowe impulsowe; 2=cyfrowe binarne; 3=analogowe 2,5 V; 4=analogowe 10 V; 5=analogowe 4–20 mA";wszystkie;kanal;0;255;0;
+1002;tak;1;u8;enum;Tryb pracy dla wejścia impulsowego kanału N;;"0=podstawowy; 1=sprzężony zliczanie: impulsy do przodu, impulsy do tyłu; 2=sprzężony zliczanie: impulsy, kierunek poziom wysoki inkrementacja; 3=sprzężony zliczanie: impulsy, kierunek poziom niski inkrementacja";impulsowe;kanal;0;255;0;"Tryby sprzężone łączą pary kanałów 1+2, 3+4, 5+6, 7+8; drugi kanał pary jest wtedy zablokowany"
+1003;tak;2;u16;number;Minimalna długość impulsu dla wejścia impulsowego kanału N;ms;;impulsowe;kanal;0;65535;0;
+1004;tak;1;u8;enum;Dziesiętny mnożnik wagi impulsu dla wejścia impulsowego kanału N;;"0=×1; 1=×10; 2=×100; 3=×1000";impulsowe;kanal;0;255;0;Waga bazowa = 1 impuls
+1005;tak;2;u16;number;Czas braku impulsów dla wejścia impulsowego kanału N;min;;impulsowe;kanal;0;65535;0;0 = wyłączone
+1006;tak;1;u8;number;Poziom przełączania wejścia binarnego kanału N;100 mV;;binarne;kanal;0;255;0;Krok 100 mV, zakres 0–25,5 V
+1007;tak;1;u8;enum;Aktywność sygnalizacji przejścia wejścia binarnego kanału N;;"0=brak; 1=na stan wysoki; 2=na stan niski; 3=na stan wysoki i niski";binarne;kanal;0;255;0;Typ nie podany w oryginale (rozmiar 1 B)
+1008;tak;2;u16;number;Czas na stabilizację nowego stanu wejścia binarnego kanału N;ms;;binarne;kanal;0;65535;0;
+1009;tak;2;u16;number;Czas martwy od momentu włączenia czujnika do rozpoczęcia odczytu dla wejścia analogowego 2,5 V kanału N;ms;;analog_2_5V;kanal;0;65535;0;
+1010;tak;2;u16;number;Wartość progu wywołania 1 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;analog_2_5V;kanal;0;65535;0;
+1011;tak;2;u16;number;Wartość progu odwołania 1 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;analog_2_5V;kanal;0;65535;0;
+1012;tak;2;u16;number;Wartość progu wywołania 2 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;analog_2_5V;kanal;0;65535;0;
+1013;tak;2;u16;number;Wartość progu odwołania 2 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;analog_2_5V;kanal;0;65535;0;W oryginale jednostka [ms] – potwierdzona literówka, chodzi o [mV]
+1014;tak;2;u16;number;Wartość progu wywołania 3 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;analog_2_5V;kanal;0;65535;0;
+1015;tak;2;u16;number;Wartość progu odwołania 3 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;analog_2_5V;kanal;0;65535;0;
+1016;tak;2;u16;number;Wartość progu wywołania 4 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;analog_2_5V;kanal;0;65535;0;
+1017;tak;2;u16;number;Wartość progu odwołania 4 alarmu dla wejścia analogowego 2,5 V kanału N;mV;;analog_2_5V;kanal;0;65535;0;
+1018;tak;1;u8;enum;Aktywność sygnalizacji alarmu 1 dla wejścia analogowego 2,5 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_2_5V;kanal;0;255;0;
+1019;tak;1;u8;enum;Aktywność sygnalizacji alarmu 2 dla wejścia analogowego 2,5 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_2_5V;kanal;0;255;0;
+1020;tak;1;u8;enum;Aktywność sygnalizacji alarmu 3 dla wejścia analogowego 2,5 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_2_5V;kanal;0;255;0;
+1021;tak;1;u8;enum;Aktywność sygnalizacji alarmu 4 dla wejścia analogowego 2,5 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_2_5V;kanal;0;255;0;
+1022;tak;1;u8;enum;Kierunek sygnalizacji alarmu 1 dla wejścia analogowego 2,5 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_2_5V;kanal;0;255;0;
+1023;tak;1;u8;enum;Kierunek sygnalizacji alarmu 2 dla wejścia analogowego 2,5 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_2_5V;kanal;0;255;0;
+1024;tak;1;u8;enum;Kierunek sygnalizacji alarmu 3 dla wejścia analogowego 2,5 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_2_5V;kanal;0;255;0;
+1025;tak;1;u8;enum;Kierunek sygnalizacji alarmu 4 dla wejścia analogowego 2,5 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_2_5V;kanal;0;255;0;
+1026;tak;2;u16;number;Czas martwy od momentu włączenia czujnika do rozpoczęcia odczytu dla wejścia analogowego 10 V kanału N;ms;;analog_10V;kanal;0;65535;0;
+1027;tak;2;u16;number;Wartość progu wywołania 1 alarmu dla wejścia analogowego 10 V kanału N;mV;;analog_10V;kanal;0;65535;0;
+1028;tak;2;u16;number;Wartość progu odwołania 1 alarmu dla wejścia analogowego 10 V kanału N;mV;;analog_10V;kanal;0;65535;0;
+1029;tak;2;u16;number;Wartość progu wywołania 2 alarmu dla wejścia analogowego 10 V kanału N;mV;;analog_10V;kanal;0;65535;0;
+1030;tak;2;u16;number;Wartość progu odwołania 2 alarmu dla wejścia analogowego 10 V kanału N;mV;;analog_10V;kanal;0;65535;0;
+1031;tak;2;u16;number;Wartość progu wywołania 3 alarmu dla wejścia analogowego 10 V kanału N;mV;;analog_10V;kanal;0;65535;0;
+1032;tak;2;u16;number;Wartość progu odwołania 3 alarmu dla wejścia analogowego 10 V kanału N;mV;;analog_10V;kanal;0;65535;0;
+1033;tak;2;u16;number;Wartość progu wywołania 4 alarmu dla wejścia analogowego 10 V kanału N;mV;;analog_10V;kanal;0;65535;0;
+1034;tak;2;u16;number;Wartość progu odwołania 4 alarmu dla wejścia analogowego 10 V kanału N;mV;;analog_10V;kanal;0;65535;0;
+1035;tak;1;u8;enum;Aktywność sygnalizacji alarmu 1 dla wejścia analogowego 10 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_10V;kanal;0;255;0;
+1036;tak;1;u8;enum;Aktywność sygnalizacji alarmu 2 dla wejścia analogowego 10 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_10V;kanal;0;255;0;
+1037;tak;1;u8;enum;Aktywność sygnalizacji alarmu 3 dla wejścia analogowego 10 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_10V;kanal;0;255;0;
+1038;tak;1;u8;enum;Aktywność sygnalizacji alarmu 4 dla wejścia analogowego 10 V kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_10V;kanal;0;255;0;
+1039;tak;1;u8;enum;Kierunek sygnalizacji alarmu 1 dla wejścia analogowego 10 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_10V;kanal;0;255;0;
+1040;tak;1;u8;enum;Kierunek sygnalizacji alarmu 2 dla wejścia analogowego 10 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_10V;kanal;0;255;0;
+1041;tak;1;u8;enum;Kierunek sygnalizacji alarmu 3 dla wejścia analogowego 10 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_10V;kanal;0;255;0;
+1042;tak;1;u8;enum;Kierunek sygnalizacji alarmu 4 dla wejścia analogowego 10 V kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_10V;kanal;0;255;0;
+1043;tak;2;u16;number;Czas martwy od momentu włączenia czujnika do rozpoczęcia odczytu dla wejścia analogowego 4–20 mA kanału N;ms;;analog_4_20mA;kanal;0;65535;0;
+1044;tak;2;u16;number;Maksymalny czas stabilizacji prądu dla wejścia analogowego 4–20 mA kanału N;ms;;analog_4_20mA;kanal;0;65535;0;
+1045;tak;1;u8;number;Procentowa granica wahań prądu dla wejścia analogowego 4–20 mA kanału N;%;;analog_4_20mA;kanal;0;255;0;
+1046;tak;2;u16;number;Wartość progu wywołania 1 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;analog_4_20mA;kanal;0;65535;0;Skala 1 mA (potwierdzone)
+1047;tak;2;u16;number;Wartość progu odwołania 1 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;analog_4_20mA;kanal;0;65535;0;Skala 1 mA (potwierdzone)
+1048;tak;2;u16;number;Wartość progu wywołania 2 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;analog_4_20mA;kanal;0;65535;0;Skala 1 mA (potwierdzone)
+1049;tak;2;u16;number;Wartość progu odwołania 2 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;analog_4_20mA;kanal;0;65535;0;Skala 1 mA (potwierdzone)
+1050;tak;2;u16;number;Wartość progu wywołania 3 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;analog_4_20mA;kanal;0;65535;0;Skala 1 mA (potwierdzone)
+1051;tak;2;u16;number;Wartość progu odwołania 3 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;analog_4_20mA;kanal;0;65535;0;Skala 1 mA (potwierdzone)
+1052;tak;2;u16;number;Wartość progu wywołania 4 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;analog_4_20mA;kanal;0;65535;0;Skala 1 mA (potwierdzone)
+1053;tak;2;u16;number;Wartość progu odwołania 4 alarmu dla wejścia analogowego 4–20 mA kanału N;mA;;analog_4_20mA;kanal;0;65535;0;Skala 1 mA (potwierdzone)
+1054;tak;1;u8;enum;Aktywność sygnalizacji alarmu 1 dla wejścia analogowego 4–20 mA kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_4_20mA;kanal;0;255;0;
+1055;tak;1;u8;enum;Aktywność sygnalizacji alarmu 2 dla wejścia analogowego 4–20 mA kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_4_20mA;kanal;0;255;0;
+1056;tak;1;u8;enum;Aktywność sygnalizacji alarmu 3 dla wejścia analogowego 4–20 mA kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_4_20mA;kanal;0;255;0;
+1057;tak;1;u8;enum;Aktywność sygnalizacji alarmu 4 dla wejścia analogowego 4–20 mA kanału N;;"0=brak aktywności; 1=sygnalizacja wywołania; 2=sygnalizacja odwołania; 3=wywołanie i odwołanie";analog_4_20mA;kanal;0;255;0;
+1058;tak;1;u8;enum;Kierunek sygnalizacji alarmu 1 dla wejścia analogowego 4–20 mA kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_4_20mA;kanal;0;255;0;
+1059;tak;1;u8;enum;Kierunek sygnalizacji alarmu 2 dla wejścia analogowego 4–20 mA kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_4_20mA;kanal;0;255;0;
+1060;tak;1;u8;enum;Kierunek sygnalizacji alarmu 3 dla wejścia analogowego 4–20 mA kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_4_20mA;kanal;0;255;0;
+1061;tak;1;u8;enum;Kierunek sygnalizacji alarmu 4 dla wejścia analogowego 4–20 mA kanału N;;"0=wywołanie przy narastaniu, odwołanie przy opadaniu; 1=wywołanie przy opadaniu, odwołanie przy narastaniu";analog_4_20mA;kanal;0;255;0;
