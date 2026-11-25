@@ -8,6 +8,7 @@ public enum DataType
     U16,
     I16,
     U32,
+    I32,
     Ascii,
     Bytes,
 }
@@ -24,6 +25,9 @@ public enum EditKind
     Hex,
     Duration,
     Millivolts,
+
+    /// <summary>Liczba z przecinkiem: wartość w programie = wartość w ramce × <see cref="ParameterDefinition.Scale"/>.</summary>
+    Decimal,
 }
 
 /// <summary>Sekcja interfejsu (odpowiedź 8.3).</summary>
@@ -91,11 +95,23 @@ public sealed class ParameterDefinition
 
     public string DefaultValue { get; init; } = string.Empty;
 
+    /// <summary>Dla <see cref="EditKind.Decimal"/>: mnożnik wartości z ramki (np. 0,1 – krok 100 mV pokazywany w V).</summary>
+    public decimal Scale { get; init; } = 1m;
+
+    /// <summary>Liczba cyfr po przecinku dla <see cref="EditKind.Decimal"/>.</summary>
+    public int Decimals => Scale >= 1m ? 0 : (int)Math.Round(-Math.Log10((double)Scale));
+
+    /// <summary>Pole obowiązkowe – puste blokuje wysyłanie (uwaga 6 z 10.11.2026).</summary>
+    public bool IsRequired { get; init; }
+
+    /// <summary>Bajty tekstu w ramce w odwrotnej kolejności (Id 3, uwaga 5 z 10.11.2026).</summary>
+    public bool ReverseBytes { get; init; }
+
     public string Notes { get; init; } = string.Empty;
 
     public bool IsChannelParameter => Channel is not null;
 
-    public bool IsNumeric => EditKind is EditKind.Number or EditKind.Enum or EditKind.Bitmask or EditKind.Duration or EditKind.Millivolts;
+    public bool IsNumeric => EditKind is EditKind.Number or EditKind.Enum or EditKind.Bitmask or EditKind.Duration or EditKind.Millivolts or EditKind.Decimal;
 
     public string OptionLabel(long value) =>
         Options.FirstOrDefault(o => o.Value == value)?.Label ?? value.ToString(System.Globalization.CultureInfo.InvariantCulture);

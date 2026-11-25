@@ -33,11 +33,79 @@ public class CoreTests
     public void Text_fields_are_padded_and_validated()
     {
         var recv = Catalog[3];
-        Assert.Equal(new byte[] { (byte)'W', (byte)'A' }, ParameterCodec.Encode(recv, "WA"));
+        // Uwaga 5 z 10.11.2026: „0W” → 0x57 0x30.
+        Assert.Equal(new byte[] { 0x57, 0x30 }, ParameterCodec.Encode(recv, "0W"));
+        Assert.Equal("0W", ParameterCodec.Decode(recv, [0x57, 0x30]));
+        Assert.Equal("W", ParameterCodec.Decode(recv, ParameterCodec.Encode(recv, "W")));
         Assert.NotNull(ParameterCodec.Validate(recv, "ABC"));
         Assert.NotNull(ParameterCodec.Validate(Catalog[29], "Zakład"));
         Assert.Null(ParameterCodec.Validate(Catalog[29], "Zaklad"));
         Assert.NotNull(ParameterCodec.Validate(Catalog[6], "12a4"));
+    }
+
+    [Theory]
+    [InlineData("2,5", 25)]
+    [InlineData("2.5", 25)]
+    [InlineData("0", 0)]
+    [InlineData("25,5", 255)]
+    public void Binary_switching_level_is_entered_in_volts(string text, byte raw)
+    {
+        var def = Catalog[1006];
+        Assert.Equal(EditKind.Decimal, def.EditKind);
+        Assert.Equal("V", def.Unit);
+        Assert.Null(ParameterCodec.Validate(def, text));
+        Assert.Equal(new[] { raw }, ParameterCodec.Encode(def, text));
+    }
+
+    [Theory]
+    [InlineData("2,55")]
+    [InlineData("25,6")]
+    [InlineData("abc")]
+    [InlineData("-0,1")]
+    public void Binary_switching_level_rejects_invalid_values(string text)
+    {
+        Assert.NotNull(ParameterCodec.Validate(Catalog[1006], text));
+    }
+
+    [Fact]
+    public void Binary_switching_level_decodes_with_one_decimal()
+    {
+        Assert.Equal("2,5", ParameterCodec.Decode(Catalog[1006], [25]));
+        Assert.Equal("0,0", ParameterCodec.Decode(Catalog[1006], [0]));
+        Assert.Equal("2,5 V", ParameterCodec.Format(Catalog[1006], "2,5"));
+    }
+
+    [Fact]
+    public void New_configuration_defaults_follow_test_remarks()
+    {
+        var config = Configuration.CreateDefault("000000");
+        Assert.Equal("4", config[ParameterIds.CatM1Bands]); // tylko B20
+        Assert.Equal("2", config[ParameterIds.NbBands]);    // tylko B8
+        Assert.Equal("1", config[24]);                      // TCP
+        Assert.Equal("1", config[25]);                      // Bin (V12)
+        Assert.DoesNotContain(Catalog[24].Options, o => o.Value == 0);
+        Assert.DoesNotContain(Catalog[25].Options, o => o.Value == 0);
+        Assert.Equal("0,0", config[1006]);
+    }
+
+    [Fact]
+    public void Required_fields_are_reported_when_empty()
+    {
+        var config = Configuration.CreateDefault("000000");
+        Assert.Equal(new ushort[] { 3, 7, 16, 17 }, ConfigurationValidator.MissingRequired(config).Select(p => p.Id));
+        config[3] = "0W";
+        config[7] = "internet";
+        config[16] = "10.0.0.1:5000";
+        config[17] = "10.0.0.2:5000";
+        Assert.Empty(ConfigurationValidator.MissingRequired(config));
+    }
+
+    [Fact]
+    public void Counter_catalogs_are_loaded()
+    {
+        Assert.Equal(new ushort[] { 101, 201, 301, 401, 501, 601, 701, 801 }, ParameterCatalog.MeasureCounters.All.Select(p => p.Id));
+        Assert.Equal(9, ParameterCatalog.DeviceCounters.All.Count);
+        Assert.Equal("-5", ParameterCodec.Decode(ParameterCatalog.MeasureCounters[101], [0xFB, 0xFF, 0xFF, 0xFF]));
     }
 
     [Fact]
@@ -135,6 +203,7 @@ public class CoreTests
         config[29] = "Stacja \"P3\" # test";
         config[16] = "host=1;x";
         config[4001] = "4";
+        config[2006] = "12,3";
         var info = new ConfigurationFileInfo { ProtocolVersion = 1, SerialNumber = "12345678", Firmware = "r3871", Created = new DateTime(2026, 11, 6, 10, 0, 0) };
 
         var text = ConfigurationFile.Serialize(config, info);

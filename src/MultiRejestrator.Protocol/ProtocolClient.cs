@@ -62,15 +62,28 @@ public sealed class ProtocolClient
     }
 
     /// <summary>Odczyt do 10 parametrów konfiguracyjnych. Nieznane Id urządzenie pomija (pytanie 3.7).</summary>
-    public async Task<IReadOnlyList<ConfBlock>> GetConfigurationAsync(IReadOnlyList<ushort> ids, CancellationToken ct = default)
-    {
-        CheckIds(ids);
-        var data = await TransactAsync(CommandType.GetConfiguration, ConfBlock.EncodeIds(ids), ResponseTimeout, ct).ConfigureAwait(false);
-        return ConfBlock.DecodeMany(data);
-    }
+    public Task<IReadOnlyList<ConfBlock>> GetConfigurationAsync(IReadOnlyList<ushort> ids, CancellationToken ct = default) =>
+        GetBlocksAsync(CommandType.GetConfiguration, ids, ct);
 
     /// <summary>Zapis do 10 bloków (≤ 1024 B). Urządzenie zapisuje bloki, które rozpozna (pytanie 3.9).</summary>
-    public async Task SetConfigurationAsync(IReadOnlyList<ConfBlock> blocks, CancellationToken ct = default)
+    public Task SetConfigurationAsync(IReadOnlyList<ConfBlock> blocks, CancellationToken ct = default) =>
+        SetBlocksAsync(CommandType.SetConfiguration, blocks, ct);
+
+    private async Task<IReadOnlyList<ConfBlock>> GetBlocksAsync(CommandType command, IReadOnlyList<ushort> ids, CancellationToken ct)
+    {
+        CheckIds(ids);
+        var data = await TransactAsync(command, ConfBlock.EncodeIds(ids), ResponseTimeout, ct).ConfigureAwait(false);
+        try
+        {
+            return ConfBlock.DecodeMany(data);
+        }
+        catch (ProtocolException ex)
+        {
+            throw new InvalidResponseException($"{FrameTypes.NameOf(FrameTypes.ResponseOf(command))}: {ex.Message}");
+        }
+    }
+
+    private async Task SetBlocksAsync(CommandType command, IReadOnlyList<ConfBlock> blocks, CancellationToken ct)
     {
         if (blocks.Count is 0 or > MaxItemsPerFrame)
         {
@@ -83,7 +96,7 @@ public sealed class ProtocolClient
             throw new ArgumentException($"Bloki zajmują {data.Length} B, limit to {MaxConfigurationData} B.", nameof(blocks));
         }
 
-        await TransactAsync(CommandType.SetConfiguration, data, WriteResponseTimeout, ct).ConfigureAwait(false);
+        await TransactAsync(command, data, WriteResponseTimeout, ct).ConfigureAwait(false);
     }
 
     public async Task<DateTimeOffset> GetTimeAsync(CancellationToken ct = default)
@@ -112,6 +125,22 @@ public sealed class ProtocolClient
         ExpectLength(data, 2, "RE_REQ_REPORT_ON_DEMAND");
         return BinaryPrimitives.ReadUInt16LittleEndian(data);
     }
+
+    /// <summary>Odczyt do 10 liczników impulsów (Protokół 1.2.12).</summary>
+    public Task<IReadOnlyList<ConfBlock>> GetMeasureCountersAsync(IReadOnlyList<ushort> ids, CancellationToken ct = default) =>
+        GetBlocksAsync(CommandType.GetMeasureCounters, ids, ct);
+
+    /// <summary>Zapis do 10 liczników impulsów (Protokół 1.2.12).</summary>
+    public Task SetMeasureCountersAsync(IReadOnlyList<ConfBlock> blocks, CancellationToken ct = default) =>
+        SetBlocksAsync(CommandType.SetMeasureCounters, blocks, ct);
+
+    /// <summary>Odczyt do 10 liczników urządzenia (Protokół 1.2.13).</summary>
+    public Task<IReadOnlyList<ConfBlock>> GetDeviceCountersAsync(IReadOnlyList<ushort> ids, CancellationToken ct = default) =>
+        GetBlocksAsync(CommandType.GetDeviceCounters, ids, ct);
+
+    /// <summary>Zapis do 10 liczników urządzenia (Protokół 1.2.13).</summary>
+    public Task SetDeviceCountersAsync(IReadOnlyList<ConfBlock> blocks, CancellationToken ct = default) =>
+        SetBlocksAsync(CommandType.SetDeviceCounters, blocks, ct);
 
     public Task StartGsmMonitorAsync(CancellationToken ct = default) =>
         TransactAsync(CommandType.MonitorGsm, [], ResponseTimeout, ct);
@@ -173,6 +202,8 @@ public sealed class ProtocolClient
 
             using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             timeoutCts.CancelAfter(timeout);
+            var bytesReceived = 0;
+            string? problem = null;
             while (true)
             {
                 while (_received.TryDequeue(out var frame))
@@ -180,6 +211,7 @@ public sealed class ProtocolClient
                     var raw = frame.Encode();
                     if (frame.Id != id)
                     {
+                        problem = $"odebrano ramkę {FrameTypes.NameOf(frame.Type)} z numerem {frame.Id} zamiast {id}";
                         Log(FrameDirection.Error, $"Pominięto ramkę {FrameTypes.NameOf(frame.Type)} z id {frame.Id} (oczekiwano {id})", raw);
                         continue;
                     }
@@ -195,7 +227,7 @@ public sealed class ProtocolClient
                     if (frame.Type != FrameTypes.ResponseOf(command))
                     {
                         Log(FrameDirection.Error, $"Nieoczekiwana odpowiedź {FrameTypes.NameOf(frame.Type)} na {name}", raw);
-                        throw new ProtocolException($"Urządzenie odpowiedziało ramką {FrameTypes.NameOf(frame.Type)} zamiast {FrameTypes.NameOf(FrameTypes.ResponseOf(command))}.");
+                        throw new InvalidResponseException($"Urządzenie odpowiedziało ramką {FrameTypes.NameOf(frame.Type)} zamiast {FrameTypes.NameOf(FrameTypes.ResponseOf(command))}.");
                     }
 
                     Log(FrameDirection.Received, $"{FrameTypes.NameOf(frame.Type)} (id {id}, {frame.Data.Length} B danych)", raw);
@@ -209,11 +241,22 @@ public sealed class ProtocolClient
                 }
                 catch (OperationCanceledException) when (!ct.IsCancellationRequested)
                 {
-                    var leftover = _parser.BufferedCount;
-                    Log(FrameDirection.Error, $"Brak odpowiedzi na {name} w ciągu {timeout.TotalSeconds:0.#} s" + (leftover > 0 ? $" ({leftover} B niekompletnej ramki)" : string.Empty), []);
+                    // Brak odpowiedzi = brak jakichkolwiek bajtów. Jeśli coś przyszło, to błędna odpowiedź,
+                    // a połączenie pozostaje aktywne (uwaga 8 z 10.11.2026).
+                    if (bytesReceived > 0)
+                    {
+                        var leftover = _parser.BufferedCount;
+                        var reason = problem
+                            ?? (leftover > 0 ? $"odebrano {bytesReceived} B, ale ramka jest niekompletna lub uszkodzona" : $"odebrano {bytesReceived} B bez poprawnej ramki (np. błąd CRC)");
+                        Log(FrameDirection.Error, $"Błędna odpowiedź na {name}: {reason}", []);
+                        throw new InvalidResponseException($"Nieprawidłowa odpowiedź na {name}: {reason}.");
+                    }
+
+                    Log(FrameDirection.Error, $"Brak odpowiedzi na {name} w ciągu {timeout.TotalSeconds:0.#} s", []);
                     throw new DeviceTimeoutException(name, timeout);
                 }
 
+                bytesReceived += chunk.Length;
                 foreach (var frame in _parser.Feed(chunk))
                 {
                     _received.Enqueue(frame);
@@ -243,7 +286,7 @@ public sealed class ProtocolClient
     {
         if (data.Length != expected)
         {
-            throw new ProtocolException($"{name}: oczekiwano {expected} B danych, odebrano {data.Length} B.");
+            throw new InvalidResponseException($"{name}: oczekiwano {expected} B danych, odebrano {data.Length} B.");
         }
     }
 }

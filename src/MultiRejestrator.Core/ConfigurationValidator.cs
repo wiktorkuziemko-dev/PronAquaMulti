@@ -43,6 +43,12 @@ public static class ConfigurationValidator
     }
 
     /// <summary>
+    /// Pola obowiązkowe bez wartości (uwaga 6 z 10.11.2026). Sprawdzane przed wysłaniem, niezależnie od walidacji.
+    /// </summary>
+    public static IReadOnlyList<ParameterDefinition> MissingRequired(Configuration config) =>
+        config.Catalog.All.Where(p => p.IsRequired && string.IsNullOrWhiteSpace(config[p.Id])).ToList();
+
+    /// <summary>
     /// Kolejność progów (odpowiedź 4.3.8): wywołanie przy narastaniu – próg wywołania wyższy niż odwołania;
     /// przy opadaniu – niższy. Sprawdzane tylko dla aktywnej grupy analogowej i alarmów z włączoną sygnalizacją.
     /// </summary>

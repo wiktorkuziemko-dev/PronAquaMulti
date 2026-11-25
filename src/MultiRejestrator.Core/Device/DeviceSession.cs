@@ -185,6 +185,50 @@ public sealed class DeviceSession : IAsyncDisposable
         return result;
     }
 
+    /// <summary>Odczyt liczników impulsów wszystkich kanałów (Protokół 1.2.12).</summary>
+    public Task<IReadOnlyDictionary<ushort, string>> ReadMeasureCountersAsync(CancellationToken ct = default) =>
+        ReadValuesAsync(ParameterCatalog.MeasureCounters, Client.GetMeasureCountersAsync, ct);
+
+    /// <summary>Zapis liczników impulsów (Protokół 1.2.12). Wartości w postaci tekstowej, Id → wartość.</summary>
+    public Task WriteMeasureCountersAsync(IReadOnlyDictionary<ushort, string> values, CancellationToken ct = default) =>
+        WriteValuesAsync(ParameterCatalog.MeasureCounters, values, Client.SetMeasureCountersAsync, ct);
+
+    /// <summary>Odczyt liczników wewnętrznych urządzenia (Protokół 1.2.13).</summary>
+    public Task<IReadOnlyDictionary<ushort, string>> ReadDeviceCountersAsync(CancellationToken ct = default) =>
+        ReadValuesAsync(ParameterCatalog.DeviceCounters, Client.GetDeviceCountersAsync, ct);
+
+    /// <summary>Zapis liczników wewnętrznych urządzenia (Protokół 1.2.13).</summary>
+    public Task WriteDeviceCountersAsync(IReadOnlyDictionary<ushort, string> values, CancellationToken ct = default) =>
+        WriteValuesAsync(ParameterCatalog.DeviceCounters, values, Client.SetDeviceCountersAsync, ct);
+
+    private static async Task<IReadOnlyDictionary<ushort, string>> ReadValuesAsync(
+        ParameterCatalog catalog, Func<IReadOnlyList<ushort>, CancellationToken, Task<IReadOnlyList<ConfBlock>>> get, CancellationToken ct)
+    {
+        var result = new Dictionary<ushort, string>();
+        foreach (var batch in catalog.All.Select(p => p.Id).Chunk(ProtocolClient.MaxItemsPerFrame))
+        {
+            foreach (var block in await get(batch, ct).ConfigureAwait(false))
+            {
+                if (catalog.TryGet(block.Id, out var def))
+                {
+                    result[block.Id] = ParameterCodec.Decode(def, block.Value);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static async Task WriteValuesAsync(
+        ParameterCatalog catalog, IReadOnlyDictionary<ushort, string> values, Func<IReadOnlyList<ConfBlock>, CancellationToken, Task> set, CancellationToken ct)
+    {
+        var blocks = values.Select(kv => new ConfBlock(kv.Key, ParameterCodec.Encode(catalog[kv.Key], kv.Value)));
+        foreach (var frame in ProtocolClient.PackBlocks(blocks))
+        {
+            await set(frame, ct).ConfigureAwait(false);
+        }
+    }
+
     /// <summary>Uruchamia monitor GSM w urządzeniu (Protokół 1.2.10).</summary>
     public Task StartGsmMonitorAsync(CancellationToken ct = default) => Client.StartGsmMonitorAsync(ct);
 

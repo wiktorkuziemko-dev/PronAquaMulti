@@ -15,6 +15,8 @@ public sealed class SimulatedDevice
     private readonly object _sync = new();
     private readonly Dictionary<ushort, byte[]> _config = new();
     private readonly Dictionary<ushort, byte[]> _state = new();
+    private readonly Dictionary<ushort, byte[]> _measureCounters = new();
+    private readonly Dictionary<ushort, byte[]> _deviceCounters = new();
     private readonly Random _random = new(1234);
     private TimeSpan _clockOffset = TimeSpan.FromSeconds(-73);
     private ushort _nextReportId = 1;
@@ -44,7 +46,27 @@ public sealed class SimulatedDevice
         SetState(DeviceStateIds.RegulatedVoltage, "3300");
         SetState(DeviceStateIds.Tamper, "0");
         SetState(DeviceStateIds.Temperature, "21");
+
+        foreach (var p in ParameterCatalog.MeasureCounters.All)
+        {
+            _measureCounters[p.Id] = ParameterCodec.Encode(p, p.Id == MeasureCounterIds.PulseCounter(0) ? "123456" : "0");
+        }
+
+        string[] deviceCounters = ["4210", "4198", "4230", "4190", "40", "4230", "151200", "1250000", "0"];
+        foreach (var p in ParameterCatalog.DeviceCounters.All)
+        {
+            _deviceCounters[p.Id] = ParameterCodec.Encode(p, deviceCounters[p.Id - 1]);
+        }
     }
+
+    /// <summary>Gdy ustawione, kolejna odpowiedź zostanie wysłana z błędnym id (symulacja niewłaściwej odpowiedzi).</summary>
+    public bool CorruptNextResponseId { get; set; }
+
+    public string MeasureCounter(int channel) =>
+        ParameterCodec.Decode(ParameterCatalog.MeasureCounters[MeasureCounterIds.PulseCounter(channel)], _measureCounters[MeasureCounterIds.PulseCounter(channel)]);
+
+    public string DeviceCounter(ushort id) =>
+        ParameterCodec.Decode(ParameterCatalog.DeviceCounters[id], _deviceCounters[id]);
 
     public ushort ProtocolVersion { get; set; } = 1;
 
@@ -172,6 +194,10 @@ public sealed class SimulatedDevice
                 CommandType.ReportOnDemand => request.Data.Length == 2 ? U16(_nextReportId++) : null,
                 CommandType.MonitorGsm => StartMonitor(),
                 CommandType.GetMeasureReport => MeasureReport(request.Data),
+                CommandType.GetMeasureCounters => GetBlocks(_measureCounters, request.Data),
+                CommandType.SetMeasureCounters => SetBlocks(_measureCounters, request.Data),
+                CommandType.GetDeviceCounters => GetBlocks(_deviceCounters, request.Data),
+                CommandType.SetDeviceCounters => SetBlocks(_deviceCounters, request.Data),
                 _ => null,
             };
 
@@ -186,7 +212,14 @@ public sealed class SimulatedDevice
                 return null;
             }
 
-            return new Frame((ushort)(request.Type | FrameTypes.ResponseFlag), request.Id, null, data);
+            var id = request.Id;
+            if (CorruptNextResponseId)
+            {
+                CorruptNextResponseId = false;
+                id = (byte)(id + 77);
+            }
+
+            return new Frame((ushort)(request.Type | FrameTypes.ResponseFlag), id, null, data);
         }
         catch (ProtocolException)
         {
@@ -231,6 +264,22 @@ public sealed class SimulatedDevice
                 if (_config.TryGetValue(block.Id, out var current) && current.Length == block.Value.Length)
                 {
                     _config[block.Id] = block.Value;
+                }
+            }
+        }
+
+        return [];
+    }
+
+    private byte[] SetBlocks(Dictionary<ushort, byte[]> target, byte[] data)
+    {
+        lock (_sync)
+        {
+            foreach (var block in ConfBlock.DecodeMany(data))
+            {
+                if (target.TryGetValue(block.Id, out var current) && current.Length == block.Value.Length)
+                {
+                    target[block.Id] = block.Value;
                 }
             }
         }

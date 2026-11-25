@@ -10,6 +10,8 @@
     <!-- Jedno źródło prawdy: tabele z dokumentacji wbudowane w program. -->
     <EmbeddedResource Include="..\..\docs\specyfikacja\parametry.csv" LogicalName="parametry.csv" />
     <EmbeddedResource Include="..\..\docs\specyfikacja\stan-urzadzenia.csv" LogicalName="stan-urzadzenia.csv" />
+    <EmbeddedResource Include="..\..\docs\specyfikacja\liczniki-pomiarowe.csv" LogicalName="liczniki-pomiarowe.csv" />
+    <EmbeddedResource Include="..\..\docs\specyfikacja\liczniki-urzadzenia.csv" LogicalName="liczniki-urzadzenia.csv" />
   </ItemGroup>
 
 </Project>

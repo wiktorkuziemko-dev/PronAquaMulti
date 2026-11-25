@@ -15,6 +15,10 @@ public enum CommandType : ushort
     ReportOnDemand = 0x0016,
     MonitorGsm = 0x0017,
     GetMeasureReport = 0x0018,
+    GetMeasureCounters = 0x0019,
+    SetMeasureCounters = 0x001A,
+    GetDeviceCounters = 0x001B,
+    SetDeviceCounters = 0x001C,
 }
 
 public static class FrameTypes
@@ -50,6 +54,10 @@ public static class FrameTypes
             CommandType.ReportOnDemand => "REQ_REPORT_ON_DEMAND",
             CommandType.MonitorGsm => "REQ_MONITOR_GSM",
             CommandType.GetMeasureReport => "REQ_GET_MEASURE_REPORT",
+            CommandType.GetMeasureCounters => "REQ_GET_MEASURE_COUNTERS",
+            CommandType.SetMeasureCounters => "REQ_SET_MEASURE_COUNTERS",
+            CommandType.GetDeviceCounters => "REQ_GET_DEVICE_COUNTERS",
+            CommandType.SetDeviceCounters => "REQ_SET_DEVICE_COUNTERS",
             _ => $"0x{(ushort)command:X4}",
         };
 

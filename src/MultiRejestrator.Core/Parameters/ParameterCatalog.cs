@@ -12,6 +12,8 @@ public sealed class ParameterCatalog
 
     private static readonly Lazy<ParameterCatalog> LazyConfiguration = new(() => Load("parametry.csv", isDeviceState: false));
     private static readonly Lazy<ParameterCatalog> LazyDeviceState = new(() => Load("stan-urzadzenia.csv", isDeviceState: true));
+    private static readonly Lazy<ParameterCatalog> LazyMeasureCounters = new(() => Load("liczniki-pomiarowe.csv", isDeviceState: true));
+    private static readonly Lazy<ParameterCatalog> LazyDeviceCounters = new(() => Load("liczniki-urzadzenia.csv", isDeviceState: true));
 
     private readonly Dictionary<ushort, ParameterDefinition> _byId;
 
@@ -26,6 +28,12 @@ public sealed class ParameterCatalog
 
     /// <summary>Parametry ramki Device State (15).</summary>
     public static ParameterCatalog DeviceState => LazyDeviceState.Value;
+
+    /// <summary>Liczniki impulsów kanałów – ramka Measure Counters (Protokół 1.2.12).</summary>
+    public static ParameterCatalog MeasureCounters => LazyMeasureCounters.Value;
+
+    /// <summary>Liczniki wewnętrzne urządzenia – ramka Device Counters (Protokół 1.2.13).</summary>
+    public static ParameterCatalog DeviceCounters => LazyDeviceCounters.Value;
 
     public IReadOnlyList<ParameterDefinition> All { get; }
 
@@ -83,6 +91,7 @@ public sealed class ParameterCatalog
             "u16" => DataType.U16,
             "i16" => DataType.I16,
             "u32" => DataType.U32,
+            "i32" => DataType.I32,
             "ascii" => DataType.Ascii,
             "bytes" => DataType.Bytes,
             var t => throw new InvalidDataException($"Nieznany typ „{t}” parametru {baseId}."),
@@ -98,6 +107,7 @@ public sealed class ParameterCatalog
             "hex" => EditKind.Hex,
             "duration" => EditKind.Duration,
             "millivolts" => EditKind.Millivolts,
+            "decimal" => EditKind.Decimal,
             var e => throw new InvalidDataException($"Nieznany sposób edycji „{e}” parametru {baseId}."),
         };
 
@@ -110,7 +120,7 @@ public sealed class ParameterCatalog
             max = ParseLong(row["max"]);
         }
 
-        if (editKind is EditKind.Number or EditKind.Enum or EditKind.Bitmask && dataType is not DataType.Ascii and not DataType.Bytes)
+        if (editKind is EditKind.Number or EditKind.Enum or EditKind.Bitmask or EditKind.Decimal && dataType is not DataType.Ascii and not DataType.Bytes)
         {
             min ??= typeMin;
             max ??= typeMax;
@@ -156,6 +166,9 @@ public sealed class ParameterCatalog
             Min = min,
             Max = max,
             DefaultValue = defaultValue,
+            Scale = decimal.TryParse(row.GetValueOrDefault("skala", string.Empty), NumberStyles.Number, CultureInfo.InvariantCulture, out var scale) && scale > 0 ? scale : 1m,
+            IsRequired = row.GetValueOrDefault("wymagany", string.Empty) == "tak",
+            ReverseBytes = row.GetValueOrDefault("kolejnosc_bajtow", string.Empty) == "odwrotna",
             Notes = row.GetValueOrDefault("uwagi", string.Empty),
         };
     }
@@ -178,6 +191,7 @@ public sealed class ParameterCatalog
         DataType.U16 => (0, ushort.MaxValue),
         DataType.I16 => (short.MinValue, short.MaxValue),
         DataType.U32 => (0, uint.MaxValue),
+        DataType.I32 => (int.MinValue, int.MaxValue),
         _ => (0, 0),
     };
 

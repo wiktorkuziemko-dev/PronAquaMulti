@@ -62,6 +62,18 @@ public sealed class DeviceTimeoutException : ProtocolException
     public string Command { get; }
 }
 
+/// <summary>
+/// Urządzenie odpowiedziało, ale odpowiedź jest nieprawidłowa (inny typ lub id ramki, błąd CRC, zła długość).
+/// Połączenie pozostaje aktywne (uwaga 8 z 10.11.2026).
+/// </summary>
+public sealed class InvalidResponseException : ProtocolException
+{
+    public InvalidResponseException(string message)
+        : base(message)
+    {
+    }
+}
+
 /// <summary>Port szeregowy nie działa (zamknięty, odłączony, błąd zapisu).</summary>
 public sealed class TransportException : ProtocolException
 {

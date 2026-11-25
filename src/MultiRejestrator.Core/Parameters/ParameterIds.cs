@@ -42,6 +42,12 @@ public static class ParameterIds
     };
 }
 
+/// <summary>Id liczników impulsów kanałów (Protokół 1.2.12): 101 + N × 100.</summary>
+public static class MeasureCounterIds
+{
+    public static ushort PulseCounter(int channel) => (ushort)(101 + (channel * 100));
+}
+
 /// <summary>Id parametrów ramki Device State (Protokół 1.2.8).</summary>
 public static class DeviceStateIds
 {

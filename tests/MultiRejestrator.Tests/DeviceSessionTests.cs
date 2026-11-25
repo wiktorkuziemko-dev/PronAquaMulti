@@ -132,6 +132,45 @@ public sealed class DeviceSessionTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Counters_are_read_and_written()
+    {
+        var session = await Connect();
+        var measure = await session.ReadMeasureCountersAsync();
+        Assert.Equal(8, measure.Count);
+        Assert.Equal("123456", measure[101]);
+
+        await session.WriteMeasureCountersAsync(new Dictionary<ushort, string> { [301] = "-42", [101] = "1000" });
+        Assert.Equal("-42", _device.MeasureCounter(2));
+        Assert.Equal("1000", _device.MeasureCounter(0));
+
+        var device = await session.ReadDeviceCountersAsync();
+        Assert.Equal(9, device.Count);
+        await session.WriteDeviceCountersAsync(device.ToDictionary(kv => kv.Key, _ => "0"));
+        Assert.Equal("0", _device.DeviceCounter(1));
+    }
+
+    [Fact]
+    public async Task Wrong_response_is_not_treated_as_lost_connection()
+    {
+        var session = await Connect();
+        session.Client.ResponseTimeout = TimeSpan.FromMilliseconds(300);
+        _device.CorruptNextResponseId = true;
+
+        var ex = await Assert.ThrowsAsync<InvalidResponseException>(() => session.KeepAliveAsync());
+        Assert.Contains("numerem", ex.Message);
+        await session.KeepAliveAsync(); // połączenie nadal działa (uwaga 8)
+    }
+
+    [Fact]
+    public async Task Error_frame_keeps_connection_usable()
+    {
+        var session = await Connect();
+        await Assert.ThrowsAsync<DeviceErrorException>(() =>
+            session.Client.TransactAsync((CommandType)0x0042, [], TimeSpan.FromSeconds(1)));
+        await session.KeepAliveAsync();
+    }
+
+    [Fact]
     public async Task Measure_day_collects_all_frames()
     {
         var session = await Connect();

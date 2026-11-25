@@ -26,10 +26,22 @@ public static class ParameterCodec
                 return bytes;
         }
 
+        if (def.EditKind == EditKind.Decimal)
+        {
+            WriteInteger(bytes, (long)Math.Round(ParseDecimal(text) / def.Scale));
+            return bytes;
+        }
+
         switch (def.DataType)
         {
             case DataType.Ascii:
-                return AsciiText.Encode(text, def.Size);
+                var ascii = AsciiText.Encode(text, def.Size);
+                if (def.ReverseBytes)
+                {
+                    Array.Reverse(ascii);
+                }
+
+                return ascii;
             case DataType.Bytes:
                 return Convert.FromHexString(text.PadRight(def.Size * 2, '0'))[..def.Size];
         }
@@ -50,11 +62,24 @@ public static class ParameterCodec
                 return Convert.ToHexString(value);
         }
 
+        if (def.EditKind == EditKind.Decimal)
+        {
+            var raw = def.DataType is DataType.I8 or DataType.I16 or DataType.I32 ? ReadSigned(value) : (long)ReadUnsigned(value);
+            return FormatDecimal(def, raw * def.Scale);
+        }
+
+        if (def.DataType == DataType.Ascii && def.ReverseBytes)
+        {
+            var reversed = value.ToArray();
+            Array.Reverse(reversed);
+            return AsciiText.Read(reversed);
+        }
+
         return def.DataType switch
         {
             DataType.Ascii => AsciiText.Read(value),
             DataType.Bytes => Convert.ToHexString(value),
-            DataType.I8 or DataType.I16 => ReadSigned(value).ToString(Inv),
+            DataType.I8 or DataType.I16 or DataType.I32 => ReadSigned(value).ToString(Inv),
             _ => ReadUnsigned(value).ToString(Inv),
         };
     }
@@ -86,6 +111,11 @@ public static class ParameterCodec
                 return LengthError(def, text);
         }
 
+        if (def.EditKind == EditKind.Decimal)
+        {
+            return ValidateDecimal(def, text);
+        }
+
         if (!long.TryParse(text, NumberStyles.AllowLeadingSign, Inv, out var value))
         {
             return "Wpisz liczbę całkowitą.";
@@ -109,6 +139,11 @@ public static class ParameterCodec
             return def.IsNumeric ? "—" : "(puste)";
         }
 
+        if (def.EditKind == EditKind.Decimal)
+        {
+            return string.IsNullOrEmpty(def.Unit) ? text : $"{text} {def.Unit}";
+        }
+
         if (!long.TryParse(text, NumberStyles.AllowLeadingSign, Inv, out var n) || !def.IsNumeric)
         {
             return text;
@@ -126,6 +161,39 @@ public static class ParameterCodec
 
     public static long? TryGetNumber(string? text) =>
         long.TryParse(text, NumberStyles.AllowLeadingSign, Inv, out var v) ? v : null;
+
+    /// <summary>Tekst liczby z przecinkiem w postaci programu (przecinek dziesiętny, stała liczba cyfr).</summary>
+    public static string FormatDecimal(ParameterDefinition def, decimal value) =>
+        value.ToString("F" + def.Decimals.ToString(Inv), Inv).Replace('.', ',');
+
+    /// <summary>Akceptuje przecinek albo kropkę jako separator dziesiętny.</summary>
+    public static bool TryParseDecimal(string? text, out decimal value) =>
+        decimal.TryParse((text ?? string.Empty).Trim().Replace(',', '.'), NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, Inv, out value);
+
+    private static decimal ParseDecimal(string text) =>
+        TryParseDecimal(text, out var v) ? v : throw new FormatException($"„{text}” nie jest liczbą.");
+
+    private static string? ValidateDecimal(ParameterDefinition def, string text)
+    {
+        var example = FormatDecimal(def, 2.5m);
+        if (!TryParseDecimal(text, out var value))
+        {
+            return $"Wpisz liczbę z przecinkiem, np. {example}.";
+        }
+
+        var raw = value / def.Scale;
+        if (raw != Math.Round(raw))
+        {
+            return $"Dozwolona jest {def.Decimals} cyfra po przecinku.";
+        }
+
+        var (typeMin, typeMax) = ParameterCatalog.TypeRange(def.DataType);
+        var min = (def.Min ?? typeMin) * def.Scale;
+        var max = (def.Max ?? typeMax) * def.Scale;
+        return value < min || value > max
+            ? $"Dozwolony zakres: {FormatDecimal(def, min)}–{FormatDecimal(def, max)}{(string.IsNullOrEmpty(def.Unit) ? string.Empty : " " + def.Unit)}."
+            : null;
+    }
 
     private static string FormatBitmask(ParameterDefinition def, long value)
     {
