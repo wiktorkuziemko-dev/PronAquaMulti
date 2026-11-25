@@ -5,7 +5,7 @@ z [`specyfikacja/odpowiedzi.md`](specyfikacja/odpowiedzi.md).
 
 ## Założenia wykonawcy (do potwierdzenia)
 
-Luki w Protokole rev3871, dla których przyjęto rozwiązanie robocze. W kodzie oznaczone
+Luki w Protokole rev3892, dla których przyjęto rozwiązanie robocze. W kodzie oznaczone
 komentarzem `// ZAŁOŻENIE:`.
 
 | Temat | Przyjęte rozwiązanie |
@@ -16,15 +16,28 @@ komentarzem `// ZAŁOŻENIE:`.
 | Measure Report – pole Day Index w odpowiedzi | Traktowane jako unsigned long (4 B) – numer indeksu dnia (opis w oryginale jest skopiowany z innej ramki). |
 | Monitor GSM | Start ramką 0x0017, potem co 2 s Device State (Id 1, 3). Protokół nie ma ramki zatrzymania – wyłączenie monitora w programie kończy tylko odpytywanie. |
 | Odczyt pamięci (6.1.14) | Brak ramki w Protokole. Funkcja w interfejsie widoczna jako niedostępna. |
-| Stan wejść/wyjść, operator, tryb pracy, liczniki (6.1.5, 6.1.10, 6.1.11) | Brak w ramce Device State. Nie są wyświetlane. |
+| Stan wejść/wyjść, operator, tryb pracy (6.1.5, 6.1.10) | Brak w ramce Device State. Nie są wyświetlane. Liczniki (6.1.11) są dostępne od rev3892 – ramki Device Counters i Measure Counters. |
+| Zapis liczników (0x001A, 0x001C) | Program pozwala zmienić wartości liczników i zapisuje je po potwierdzeniu, tak jak konfigurację. Protokół nie opisuje ograniczeń zapisu. |
 | Device State Id 3 | W oryginale „unsigned short” przy Size 1 – wartości liczbowe dekodowane zawsze według pola Size z bloku. |
-| Domyślne pasma (Id 10, 11) | Wszystkie pasma (0x07), bo wartość 0 łamie regułę „co najmniej jedno pasmo”. |
-| Domyślny protokół i format (Id 24, 25) | 0 – „nie wybrano” (zgodnie z odpowiedzią 4.1.2: zera). |
 
 ## Decyzje
 
 | Data | Decyzja | Uzasadnienie |
 | --- | --- | --- |
+| 2026-11-25 | Uwagi z testów z 10.11.2026 (`zrodla/Uwagi_z_testow_2026-11-10.txt`), wprowadzone w wersji 0.2: | |
+| | 1. Poziom przełączania wejścia binarnego (Id 1006) wpisywany w V z jedną cyfrą po przecinku; w ramce nadal krok 100 mV. | Uwaga 1. |
+| | 2. Przycisk „Rozłącz” zielony. | Uwaga 2. |
+| | 3. Zegar urządzenia: pola „Czas komputera” i „Czas urządzenia”, przyciski „Odczytaj z urządzenia” i „Ustaw wg komputera” (ustawia, potem odczytuje oba czasy). Ręczne wpisywanie czasu usunięte. | Uwaga 3 (zastępuje odpowiedź 3.15 w części „ręczne”). |
+| | 4. Przycisk diagnostyki „Odśwież” → „Pobierz stan”. | Uwaga 4. |
+| | 5. Numer odbiorcy (Id 3) w transmisji w odwrotnej kolejności bajtów: „0W” → 0x57 0x30. | Uwaga 5 (zastępuje odpowiedź 4.2.3). |
+| | 6. Pola obowiązkowe: Numer odbiorcy, APN nazwa, URL podstawowy, URL rezerwowy – czerwona obwódka; puste pole blokuje wysyłanie z komunikatem, którego pola brakuje. | Uwaga 6. |
+| | 7. Brak odpowiedzi urządzenia: połączenie zamykane, „Rozłącz” nieaktywny, „Połącz” aktywny. | Uwaga 7. |
+| | 8. Błędna odpowiedź lub ramka błędu nie zrywają połączenia – tylko komunikat z przyczyną. Za brak odpowiedzi uznaje się wyłącznie brak jakichkolwiek bajtów w czasie oczekiwania. | Uwaga 8. |
+| | 9. „Monitorowanie GSM” → „Monitorowanie sygnału GSM (co 2 s)”. | Uwaga 9. |
+| | 10. Nowa konfiguracja: pasmo CAT-M1 = B20, NB = B8, protokół TCP, format Bin (V12); bez opcji „nie wybrano” w Id 24 i 25. | Uwaga 10 (zastępuje część odpowiedzi 4.1.2). |
+| | 11. Bez przycisku „Zapisz jako…”; „Zapisz” zawsze pokazuje okno wyboru pliku. | Uwaga 11. |
+| | 12. Przed każdym wysłaniem konfiguracji – zapis do pliku (okno wyboru pliku); anulowanie zapisu anuluje wysyłanie. | Uwaga 12. |
+| 2026-11-25 | Protokół rev3892: liczniki impulsów kanałów i liczniki urządzenia w widoku Diagnostyka – odczyt i zapis po potwierdzeniu. | Nowe ramki 1.2.12–1.2.13; pkt 12 Założeń („liczniki i inne dane diagnostyczne”). |
 | 2026-11-06 | Tryb demonstracyjny `--symulator` w programie (port „SYMULATOR”, urządzenie w pamięci). Niewidoczny bez parametru. | Testy i szkolenia bez sprzętu. |
 | 2026-11-06 | Widok „Zdarzenia” z makiety nazwany „Dane pomiarowe” (ramka Measure Report). | Protokół rev3871 nie ma bufora zdarzeń – patrz założenia wyżej. |
 | 2026-11-06 | Numeracja wersji programu: `MAJOR.MINOR.PATCH` w `Directory.Build.props`. Tag `vX.Y.Z` na GitHubie buduje wydanie z plikami `.exe` (x64, x86). | Propozycja wykonawcy (9.9). |

@@ -1,0 +1,10 @@
+id;rozmiar_B;typ;prezentacja;nazwa;jednostka;wartosci;uwagi
+1;4;u32;number;Licznik raportów wygenerowanych;;;
+2;4;u32;number;Licznik raportów wysłanych;;;
+3;4;u32;number;Licznik włączeń modułu GSM;;;
+4;4;u32;number;Licznik poprawnych komunikacji przez moduł GSM;;;
+5;4;u32;number;Licznik nieudanych komunikacji przez moduł GSM;;;
+6;4;u32;number;Licznik sesji komunikacji przez moduł GSM;;;
+7;4;u32;number;Licznik czasu włączenia modułu GSM;s;;
+8;4;u32;number;Licznik energii pobranej z baterii wewnętrznej;μAh;;
+9;4;u32;number;Licznik energii pobranej z baterii zewnętrznej;μAh;;

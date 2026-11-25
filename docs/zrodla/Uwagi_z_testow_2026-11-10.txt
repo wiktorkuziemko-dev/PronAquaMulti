@@ -1,0 +1,23 @@
+2026.11.10.
+1. W konfiguracji wejścia binarnego Poziom przełączania - w polu danej przyjąć format liczby z przecinkiem i jednej cyfry po przecinku, a w jednostkę [V]
+2. Przycisk "Rozłącz" powinien mieć kolor zielony.
+3. W sekcji "Zegar urządzenia" powinny być 2 okienka - jedno dla czasu komputera i drugie dla czasu urządzenia. Powinny być przyciski z następującą funkcjonalnością:
+	a) "Odczytaj z urządzenia" - po naciśnięciu program powinien pobrać czas z urządzenia i z komputera i wyświetlić je w odpowiednich okienkach
+	b) "Ustaw wg komputera" - po naciśnięciu program powinien pobrać czas z komputera, wysłać go do urządzenia, następnie pobrać czas z urządzenia i z komputera i wyświetlić je w odpowiednich okienkach
+4. Przycisk "Odśwież" na zakładce "Diagnostyka" powinien mieć napis "Pobierz stan"
+5. Bajty pola "Numer odbiorcy" powinny w transmisji iść w odwrotnej kolejności niż teraz - tzn. jeśli w polu jest wpisane "0W", to w ciągu transmisyjnym powinni być 0x57 0x30
+6. Dodać sygnalizację pól obowiązkowych (np. dodatkowa obwódka czerwoną linią) - w tych polach przed wysłaniem konfiguracji do urządzenia muszą być wpisane dane. Jeśli w którymkolwiek z tych pól brakuje danej, to po wciśnięciu przycisku "Wyślij do urządzenia" powinno wyskoczyć okno z informacją, do którego pola nie są wpisane dane i wysyłanie powinno być anulowane. Sygnalizacja pól obowiązkowych powinna dotyczyć następujących pól:
+	- URL podstawowy
+	- URL rezerwowy
+	- APN nazwa
+	- Numer odbiorcy
+7. Po wykryciu, że połączenie zostało zerwane - brak odpowiedzi z urządzenia - zdeaktywować przycisk "Rozłącz" i aktywować przycisk "Połącz"
+8. Obecnie po wystąpieniu błędu komunikacji typu niewłaściwa odpowiedź czy odpowiedź sygnalizująca błąd są deaktywowane przyciski "Pobierz z urządzenia" i "Wyślij do urządzenia"; po błędzie komunikacji nie będącym brakiem odpowiedzi połączenie nadal jest prawidłowe i nie należy deaktywować tych przycisków, tylko wyświetlić informację, co jest przyczyną błędu i pozwolić dalej normalnie pracować.
+9. Na zakładce "Diagnostyka" nazwę fiszki "Monitorowanie GSM (co 2 s)" zmienić na "Monitorowanie sygnału GSM (co 2 s)"
+10. Po kliknięciu przycisku "Nowa" (konfiguracja):
+	- w linii "Wybór pasma dla CAT-M1" powinna być zaznaczona tylko fiszka "B20"
+	- w linii "Wybór pasma dla NB" powinna być zaznaczona tylko fiszka "B8"
+	- w zakładce "Transmisja i szyfrowanie" w polu "Wybór protokołu" powinna być wybrana opcja "TCP"; w ogóle w polu tym nie powinno być opcji "nie wybrano"
+	- w zakładce "Transmisja i szyfrowanie" w polu "Wybór formatu danych w raporcie" powinna być wybrana opcja "Bin (protokół własny V12)"; w ogóle w polu tym nie powinno być opcji "nie wybrano"
+11. Na pasku poleceń skasować przycisk "Zapisz jako..." a wszystkie zapisy do pliku wykonywać zawsze w trybie "Zapisz jako", czyli z wyświetleniem okna do zapisu z mozliwością zmiany lokalizacji i nazwy pliku.
+12. Przed każdym wysłaniem konfiguracji do urządzenia wykonywać zapis konfiguracji do pliku - oczywiście w trybie "zapisz jako".

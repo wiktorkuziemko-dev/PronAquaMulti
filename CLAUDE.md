@@ -1,7 +1,7 @@
 # MultiRejestrator – konfigurator
 
 Aplikacja desktopowa (Windows) do konfiguracji urządzeń MultiRejestrator / PronAquaMulti przez RS232/UART.
-Specyfikacja: „Założenia programu MultiRejestrator” v1.00 oraz „Protokół Komunikacyjny PronAquaMulti” v1.0 rev3871.
+Specyfikacja: „Założenia programu MultiRejestrator” v1.00 oraz „Protokół Komunikacyjny PronAquaMulti” v1.0 rev3892.
 Otwarte pytania do specyfikacji są prowadzone w osobnym dokumencie zespołu, poza repozytorium.
 
 ## Dokumentacja (`docs/`)

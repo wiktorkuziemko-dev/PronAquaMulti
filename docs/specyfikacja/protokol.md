@@ -1,7 +1,7 @@
 # Protokół Komunikacyjny PronAquaMulti v1.0
 
-> Transkrypcja dokumentu `docs/zrodla/Protokol_Komunikacyjny_PronAquaMulti_v1.0_rev3871.pdf`
-> (autor: INTSOL, Warszawa, 5.11.2026) do Markdown. W razie rozbieżności rozstrzyga oryginał.
+> Transkrypcja dokumentu `docs/zrodla/Protokol_Komunikacyjny_PronAquaMulti_v1.0_rev3892.pdf`
+> (autor: INTSOL, Warszawa, 23.11.2026) do Markdown. W razie rozbieżności rozstrzyga oryginał.
 > Treść przepisana bez zmian merytorycznych; oczywiste literówki w nazwach typów poprawiono.
 > Uwagi transkrypcji oznaczone są jako **[Uwaga]** – to nie jest treść oryginału.
 > Pełna lista parametrów konfiguracyjnych w formie danych: [`parametry.csv`](parametry.csv).
@@ -73,11 +73,15 @@ w przypadku gdy ciąg jest krótszy niż dedykowany dla niego obszar pamięci.
 | REQ_REPORT_ON_DEMAND | 0x0016 | RE_REQ_REPORT_ON_DEMAND | 0x8016 | 2 B | 2 B | 1.2.9 |
 | REQ_MONITOR_GSM | 0x0017 | RE_REQ_MONITOR_GSM | 0x8017 | 0 B | 0 B | 1.2.10 |
 | REQ_GET_MEASURE_REPORT | 0x0018 | RE_REQ_GET_MEASURE_REPORT | 0x8018 | 6 B | min. 18 B | 1.2.11 |
-| REQ_UPDATE_FW | 0x0051 | RE_REQ_UPDATE_FW | 0x8051 | 8 B | 1 B | 1.2.12 |
-| REQ_GET_FW_CRC | 0x0052 | RE_REQ_GET_FW_CRC | 0x8052 | 8 B | 4 B | 1.2.13 |
-| REQ_GET_FW_PARAMS | 0x0053 | RE_REQ_GET_FW_PARAMS | 0x8053 | 0 B | 8 B | 1.2.14 |
-| REQ_SAVE_FW_N_PACKETS | 0x0054 | RE_REQ_SAVE_FW_N_PACKETS | 0x8054 | 5–1029 B | 0 B | 1.2.15 |
-| REQ_CLEAR_ALL_FW_DATA | 0x0055 | RE_REQ_CLEAR_ALL_FW_DATA | 0x8055 | 0 B | 0 B | 1.2.16 |
+| REQ_GET_MEASURE_COUNTERS | 0x0019 | RE_REQ_GET_MEASURE_COUNTERS | 0x8019 | 0–20 B | 0–1024 B | 1.2.12 |
+| REQ_SET_MEASURE_COUNTERS | 0x001A | RE_REQ_SET_MEASURE_COUNTERS | 0x801A | 0–1024 B | 0 B | 1.2.12 |
+| REQ_GET_DEVICE_COUNTERS | 0x001B | RE_REQ_GET_DEVICE_COUNTERS | 0x801B | 0–20 B | 0–1024 B | 1.2.13 |
+| REQ_SET_DEVICE_COUNTERS | 0x001C | RE_REQ_SET_DEVICE_COUNTERS | 0x801C | 0–1024 B | 0 B | 1.2.13 |
+| REQ_UPDATE_FW | 0x0051 | RE_REQ_UPDATE_FW | 0x8051 | 8 B | 1 B | 1.2.14 |
+| REQ_GET_FW_CRC | 0x0052 | RE_REQ_GET_FW_CRC | 0x8052 | 8 B | 4 B | 1.2.15 |
+| REQ_GET_FW_PARAMS | 0x0053 | RE_REQ_GET_FW_PARAMS | 0x8053 | 0 B | 8 B | 1.2.16 |
+| REQ_SAVE_FW_N_PACKETS | 0x0054 | RE_REQ_SAVE_FW_N_PACKETS | 0x8054 | 5–1029 B | 0 B | 1.2.17 |
+| REQ_CLEAR_ALL_FW_DATA | 0x0055 | RE_REQ_CLEAR_ALL_FW_DATA | 0x8055 | 0 B | 0 B | 1.2.18 |
 
 > **[Uwaga]** Kod odpowiedzi = kod zapytania | 0x8000.
 
@@ -449,7 +453,63 @@ Bloki **RepBlock**:
 > Nie opisano, jak pobrać dane pozostałych kanałów ani jak wykryć koniec danych dnia.
 > Rozmiar bloku nieaktywnego kanału (typ 0) nie jest określony. Patrz `docs/decyzje.md`.
 
-#### 1.2.12. Ramka Firmware Update
+#### 1.2.12. Ramka Measure Counters
+
+Ramka wysyłająca i pobierająca liczniki pomiarowe.
+
+| | Zapytanie | Odpowiedź |
+| --- | --- | --- |
+| Nazwa komendy | REQ_GET_MEASURE_COUNTERS | RE_REQ_GET_MEASURE_COUNTERS |
+| Typ (pole TYPE) | 0x0019 | 0x8019 |
+| Rozmiar pola DATA | 0–20 B | 0–1024 B |
+
+| | Zapytanie | Odpowiedź |
+| --- | --- | --- |
+| Nazwa komendy | REQ_SET_MEASURE_COUNTERS | RE_REQ_SET_MEASURE_COUNTERS |
+| Typ (pole TYPE) | 0x001A | 0x801A |
+| Rozmiar pola DATA | 0–1024 B | 0 B |
+
+Liczniki przesyłane są w blokach **ConfBlock** (Id 2 B, Size 2 B, Value). Zapytanie GET zawiera
+tablicę do 10 numerów Id; REQ_SET_MEASURE_COUNTERS i RE_REQ_GET_MEASURE_COUNTERS – od 0 do 10 bloków.
+Lista w formie danych: [`liczniki-pomiarowe.csv`](liczniki-pomiarowe.csv).
+
+| Id | Size | Value |
+| --- | --- | --- |
+| 101 + N × 100 | 4 | Licznik impulsów kanału N (signed long), N = 0–7 |
+
+> **[Uwaga]** Id liczników: 101, 201, …, 801 – krok 100, inaczej niż w parametrach konfiguracyjnych (krok 1000).
+
+#### 1.2.13. Ramka Device Counters
+
+Ramka wysyłająca i pobierająca liczniki wewnętrzne urządzenia.
+
+| | Zapytanie | Odpowiedź |
+| --- | --- | --- |
+| Nazwa komendy | REQ_GET_DEVICE_COUNTERS | RE_REQ_GET_DEVICE_COUNTERS |
+| Typ (pole TYPE) | 0x001B | 0x801B |
+| Rozmiar pola DATA | 0–20 B | 0–1024 B |
+
+| | Zapytanie | Odpowiedź |
+| --- | --- | --- |
+| Nazwa komendy | REQ_SET_DEVICE_COUNTERS | RE_REQ_SET_DEVICE_COUNTERS |
+| Typ (pole TYPE) | 0x001C | 0x801C |
+| Rozmiar pola DATA | 0–1024 B | 0 B |
+
+Budowa pola DATA jak w ramce Measure Counters. Lista w formie danych: [`liczniki-urzadzenia.csv`](liczniki-urzadzenia.csv).
+
+| Id | Size | Value |
+| --- | --- | --- |
+| 1 | 4 | Licznik raportów wygenerowanych (unsigned long) |
+| 2 | 4 | Licznik raportów wysłanych (unsigned long) |
+| 3 | 4 | Licznik włączeń modułu GSM (unsigned long) |
+| 4 | 4 | Licznik poprawnych komunikacji przez moduł GSM (unsigned long) |
+| 5 | 4 | Licznik nieudanych komunikacji przez moduł GSM (unsigned long) |
+| 6 | 4 | Licznik sesji komunikacji przez moduł GSM (unsigned long) |
+| 7 | 4 | Licznik czasu włączenia modułu GSM [s] (unsigned long) |
+| 8 | 4 | Licznik energii pobranej z baterii wewnętrznej [μAh] (unsigned long) |
+| 9 | 4 | Licznik energii pobranej z baterii zewnętrznej [μAh] (unsigned long) |
+
+#### 1.2.14. Ramka Firmware Update
 
 Ramka wysyłająca rozkaz rozpoczęcia wymiany firmware'u.
 
@@ -474,7 +534,7 @@ Pole DATA RE_REQ_UPDATE_FW:
 | Error | 1 | Status poprawności danych: 0 – dane poprawne; 1 – niepoprawne dane |
 | SUMA | 1 | |
 
-#### 1.2.13. Ramka Firmware CRC
+#### 1.2.15. Ramka Firmware CRC
 
 Ramka pobierająca sumę kontrolną z przesłanych danych nowego firmware'u. Suma kontrolna liczona
 jest z danych umieszczonych w pamięci flash w zadanym rozmiarze.
@@ -500,7 +560,7 @@ Pole DATA RE_REQ_GET_FW_CRC:
 | CRC | 4 | Suma kontrolna wyliczona algorytmem CRC-32 (wielomian 0x04C11DB7) (1 × unsigned long) |
 | SUMA | 4 | |
 
-#### 1.2.14. Ramka Firmware Params
+#### 1.2.16. Ramka Firmware Params
 
 Ramka pobierająca informację o parametrach firmware'u możliwego do przesłania do urządzenia.
 
@@ -518,7 +578,7 @@ Pole DATA RE_REQ_GET_FW_PARAMS (w oryginale opisane jako RE_REQ_GET_FW_CRC):
 | Packet Number | 4 | – | Liczba pakietów danych możliwa do przesłania (1 × unsigned long) |
 | SUMA | 8 | | |
 
-#### 1.2.15. Ramka Firmware Packet N-size
+#### 1.2.17. Ramka Firmware Packet N-size
 
 Ramka wysyłająca większą liczbę pakietów danych firmware'u.
 
@@ -537,7 +597,7 @@ Pole DATA REQ_SAVE_FW_N_PACKETS:
 | Fw Data[0–192] | 0–1024 | Dane pakietu |
 | SUMA | 5–1029 | |
 
-#### 1.2.16. Ramka Clear All Firmware Data
+#### 1.2.18. Ramka Clear All Firmware Data
 
 Ramka czyszcząca bufor tymczasowy bootloadera.
 

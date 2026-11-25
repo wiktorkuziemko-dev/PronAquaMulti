@@ -4,12 +4,12 @@ Aplikacja okienkowa dla Windows do konfiguracji, odczytu danych i diagnostyki ur
 MultiRejestrator (PronAquaMulti) przez port szeregowy RS232/UART.
 
 > **Stan:** wersja robocza 0.1 – pełna konfiguracja, pliki, porównanie, diagnostyka i dane pomiarowe
-> zgodnie z Protokołem rev3871. Luki w Protokole i przyjęte założenia: [`docs/decyzje.md`](docs/decyzje.md).
+> zgodnie z Protokołem rev3892. Luki w Protokole i przyjęte założenia: [`docs/decyzje.md`](docs/decyzje.md).
 
 ## Dokumentacja
 
 - *Założenia programu do konfiguracji urządzeń MultiRejestrator* v1.00 – [`docs/specyfikacja/zalozenia.md`](docs/specyfikacja/zalozenia.md)
-- *Protokół Komunikacyjny PronAquaMulti* v1.0 rev3871 (INTSOL) – [`docs/specyfikacja/protokol.md`](docs/specyfikacja/protokol.md)
+- *Protokół Komunikacyjny PronAquaMulti* v1.0 rev3892 (INTSOL) – [`docs/specyfikacja/protokol.md`](docs/specyfikacja/protokol.md)
 - Parametry konfiguracyjne jako dane – [`docs/specyfikacja/parametry.csv`](docs/specyfikacja/parametry.csv)
 - Indeks i opis formatów – [`docs/README.md`](docs/README.md), decyzje – [`docs/decyzje.md`](docs/decyzje.md)
 
