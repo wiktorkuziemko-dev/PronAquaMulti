@@ -3,7 +3,7 @@
 Aplikacja okienkowa dla Windows do konfiguracji, odczytu danych i diagnostyki urządzeń
 MultiRejestrator (PronAquaMulti) przez port szeregowy RS232/UART.
 
-> **Stan:** wersja robocza 0.1 – pełna konfiguracja, pliki, porównanie, diagnostyka i dane pomiarowe
+> **Stan:** wersja robocza 0.2 (po uwagach z testów 10.11.2026) – pełna konfiguracja, pliki, porównanie, diagnostyka z licznikami i dane pomiarowe
 > zgodnie z Protokołem rev3892. Luki w Protokole i przyjęte założenia: [`docs/decyzje.md`](docs/decyzje.md).
 
 ## Dokumentacja

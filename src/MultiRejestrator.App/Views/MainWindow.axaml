@@ -41,6 +41,17 @@
             </StackPanel>
         </DataTemplate>
 
+        <DataTemplate DataType="dlg:ConfirmDialogViewModel">
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+                    <Button Content="Anuluj" Command="{Binding CancelCommand}" IsCancel="True" IsDefault="True" />
+                    <Button Classes="primary" Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
         <DataTemplate DataType="dlg:UnsavedDialogViewModel">
             <StackPanel Spacing="10">
                 <TextBlock Text="Konfiguracja została zmieniona" FontSize="18" FontWeight="SemiBold" />
@@ -190,7 +201,7 @@
                             <Path Data="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" Stroke="#374151" StrokeThickness="1.6" Width="15" Height="15" Stretch="Uniform" />
                         </Button>
                         <Button Classes="primary" Content="Połącz" Command="{Binding ConnectCommand}" IsVisible="{Binding !CanDisconnect}" IsEnabled="{Binding CanConnect}" />
-                        <Button Content="Rozłącz" Command="{Binding DisconnectCommand}" IsVisible="{Binding CanDisconnect}" />
+                        <Button Classes="success" Content="Rozłącz" Command="{Binding DisconnectCommand}" IsVisible="{Binding CanDisconnect}" />
                     </StackPanel>
                 </Border>
                 <Button Grid.Column="4" Classes="icon ghost" Margin="12,0,0,0" Command="{Binding OpenSettingsCommand}" ToolTip.Tip="Ustawienia programu" AutomationProperties.Name="Ustawienia programu">
@@ -213,10 +224,9 @@
                         <Button Classes="ghost" Command="{Binding OpenCommand}" ToolTip.Tip="Otwórz konfigurację z dysku (Ctrl+O)">
                             <StackPanel Orientation="Horizontal" Spacing="7"><Path Data="M1.8 4.5h4.2l1.5 1.5h6.7v7.5H1.8z" Stroke="#374151" StrokeThickness="1.5" Width="15" Height="15" Stretch="Uniform" /><TextBlock Text="Otwórz…" /></StackPanel>
                         </Button>
-                        <Button Classes="ghost" Command="{Binding SaveCommand}" ToolTip.Tip="Zapisz konfigurację na dysku (Ctrl+S)">
-                            <StackPanel Orientation="Horizontal" Spacing="7"><Path Data="M2.5 2.5h8.5l2.5 2.5v8.5h-11zM5 2.5v3.5h5V2.5M5 13.5V9.5h6v4" Stroke="#374151" StrokeThickness="1.5" Width="15" Height="15" Stretch="Uniform" /><TextBlock Text="Zapisz" /></StackPanel>
+                        <Button Classes="ghost" Command="{Binding SaveCommand}" ToolTip.Tip="Zapisz konfigurację na dysku – z wyborem nazwy i folderu (Ctrl+S)">
+                            <StackPanel Orientation="Horizontal" Spacing="7"><Path Data="M2.5 2.5h8.5l2.5 2.5v8.5h-11zM5 2.5v3.5h5V2.5M5 13.5V9.5h6v4" Stroke="#374151" StrokeThickness="1.5" Width="15" Height="15" Stretch="Uniform" /><TextBlock Text="Zapisz…" /></StackPanel>
                         </Button>
-                        <Button Classes="ghost" Command="{Binding SaveAsCommand}" Content="Zapisz jako…" ToolTip.Tip="Zapisz konfigurację pod inną nazwą" />
                         <Border Width="1" Height="22" Background="#E3E6EB" Margin="6,0" />
                         <Button Command="{Binding ReadFromDeviceCommand}" IsEnabled="{Binding CanUseDevice}" ToolTip.Tip="Pobierz konfigurację z urządzenia (F5)">
                             <StackPanel Orientation="Horizontal" Spacing="7"><Path Data="M8 2v8M4.8 7l3.2 3.2L11.2 7M2.5 13.5h11" Stroke="#374151" StrokeThickness="1.6" Width="15" Height="15" Stretch="Uniform" /><TextBlock Text="Pobierz z urządzenia" /></StackPanel>

@@ -38,6 +38,15 @@ public sealed partial class MessageDialogViewModel : DialogViewModel
     public bool HasHint => !string.IsNullOrEmpty(Hint);
 }
 
+public sealed class ConfirmDialogViewModel : DialogViewModel
+{
+    public required string Title { get; init; }
+
+    public required string Text { get; init; }
+
+    public required string ConfirmText { get; init; }
+}
+
 public enum UnsavedChoice
 {
     Cancel,

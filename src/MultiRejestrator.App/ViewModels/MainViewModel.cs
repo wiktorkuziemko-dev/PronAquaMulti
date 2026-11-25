@@ -289,25 +289,22 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
+    /// <summary>Zapis zawsze z oknem wyboru pliku (uwaga 11 z 10.11.2026).</summary>
     [RelayCommand]
-    private Task SaveAsync() => SaveCoreAsync(saveAs: false);
+    private Task SaveAsync() => SaveCoreAsync("Zapisz konfigurację");
 
-    [RelayCommand]
-    private Task SaveAsAsync() => SaveCoreAsync(saveAs: true);
-
-    private async Task<bool> SaveCoreAsync(bool saveAs)
+    private async Task<bool> SaveCoreAsync(string title)
     {
-        var path = _filePath;
-        if (path is null || saveAs)
+        // Proponowana nazwa: bieżący plik albo numer seryjny (pkt 11.1).
+        var serial = Editor.Configuration[ParameterIds.SerialNumber];
+        var suggested = _filePath is not null
+            ? Path.GetFileName(_filePath)
+            : (string.IsNullOrWhiteSpace(serial) ? "konfiguracja" : serial) + ConfigurationFile.Extension;
+        var folder = _filePath is not null ? Path.GetDirectoryName(_filePath) : Settings.ConfigurationFolder;
+        var path = await Files.PickSaveAsync(title, suggested, "Konfiguracja MultiRejestrator", "*.txt", folder);
+        if (path is null)
         {
-            // Proponowana nazwa = numer seryjny (pkt 11.1).
-            var serial = Editor.Configuration[ParameterIds.SerialNumber];
-            var suggested = (string.IsNullOrWhiteSpace(serial) ? "konfiguracja" : serial) + ConfigurationFile.Extension;
-            path = await Files.PickSaveAsync("Zapisz konfigurację", suggested, "Konfiguracja MultiRejestrator", "*.txt", Settings.ConfigurationFolder);
-            if (path is null)
-            {
-                return false;
-            }
+            return false;
         }
 
         var now = DateTime.Now;
@@ -353,7 +350,7 @@ public partial class MainViewModel : ViewModelBase
         return dialog.Choice switch
         {
             UnsavedChoice.Discard => true,
-            UnsavedChoice.Save => await SaveCoreAsync(saveAs: false),
+            UnsavedChoice.Save => await SaveCoreAsync("Zapisz konfigurację"),
             _ => false,
         };
     }
@@ -401,7 +398,8 @@ public partial class MainViewModel : ViewModelBase
 
     public bool CanConnect => Connection is ConnectionState.Disconnected or ConnectionState.Error && !IsBusy;
 
-    public bool CanDisconnect => Connection is ConnectionState.Connected or ConnectionState.Error;
+    /// <summary>„Rozłącz” tylko przy aktywnym połączeniu; po utracie komunikacji aktywny jest „Połącz” (uwaga 7).</summary>
+    public bool CanDisconnect => Connection == ConnectionState.Connected;
 
     public bool PortLocked => Connection is ConnectionState.Connected or ConnectionState.Connecting;
 
@@ -528,20 +526,7 @@ public partial class MainViewModel : ViewModelBase
     };
 
     [RelayCommand]
-    private async Task DisconnectAsync()
-    {
-        _keepAlive.Stop();
-        var session = _session;
-        _session = null;
-        Connection = ConnectionState.Disconnected;
-        if (session is not null)
-        {
-            session.Client.LogInfo("Rozłączono");
-            await session.DisposeAsync();
-        }
-
-        OnPropertyChanged(nameof(DeviceSerial));
-    }
+    private Task DisconnectAsync() => CloseSessionAsync(ConnectionState.Disconnected);
 
     private async Task KeepAliveAsync()
     {
@@ -575,6 +560,8 @@ public partial class MainViewModel : ViewModelBase
             IsBusy = true;
         }
 
+        Exception? lost = null;
+        Exception? failed = null;
         try
         {
             await operation(session, CancellationToken.None);
@@ -586,12 +573,12 @@ public partial class MainViewModel : ViewModelBase
         }
         catch (Exception ex) when (ex is DeviceTimeoutException or TransportException || ex.InnerException is DeviceTimeoutException or TransportException)
         {
-            await OnConnectionLostAsync(description, ex);
+            lost = ex;
             return false;
         }
         catch (Exception ex) when (ex is ProtocolException or PartialWriteException)
         {
-            await ShowMessageAsync($"{description} – błąd", ex.Message, "Spróbuj ponownie. Jeśli błąd się powtarza, zapisz log komunikacji i przekaż go serwisowi.", isError: true);
+            failed = ex;
             return false;
         }
         finally
@@ -600,15 +587,43 @@ public partial class MainViewModel : ViewModelBase
             {
                 IsBusy = false;
             }
+
+            // Komunikaty po zakończeniu operacji – przyciski są już aktywne.
+            if (lost is not null)
+            {
+                await OnConnectionLostAsync(description, lost);
+            }
+            else if (failed is not null)
+            {
+                // Błędna odpowiedź lub ramka błędu – połączenie pozostaje aktywne (uwaga 8).
+                await ShowMessageAsync($"{description} – błąd", failed.Message,
+                    "Połączenie z urządzeniem pozostaje aktywne – możesz kontynuować pracę. Jeśli błąd się powtarza, przekaż serwisowi plik MultiRejestrator.log.", isError: true);
+            }
         }
     }
 
+    /// <summary>Brak odpowiedzi urządzenia: port zamykany, aktywny „Połącz” (uwaga 7).</summary>
     private async Task OnConnectionLostAsync(string description, Exception ex)
     {
-        _keepAlive.Stop();
-        Connection = ConnectionState.Error;
+        await CloseSessionAsync(ConnectionState.Error);
         Diagnostics.IsMonitoring = false;
-        await ShowMessageAsync("Utrata komunikacji", $"{description}: {ex.Message}", "Sprawdź kabel i zasilanie urządzenia, a następnie połącz ponownie.", isError: true);
+        await ShowMessageAsync("Utrata komunikacji", $"{description}: {ex.Message}",
+            "Połączenie zostało zamknięte. Sprawdź kabel i zasilanie urządzenia, a następnie kliknij „Połącz”.", isError: true);
+    }
+
+    private async Task CloseSessionAsync(ConnectionState state)
+    {
+        _keepAlive.Stop();
+        var session = _session;
+        _session = null;
+        Connection = state;
+        if (session is not null)
+        {
+            session.Client.LogInfo(state == ConnectionState.Error ? "Połączenie zamknięte po utracie komunikacji" : "Rozłączono");
+            await session.DisposeAsync();
+        }
+
+        OnPropertyChanged(nameof(DeviceSerial));
     }
 
     // ---------------- Odczyt i zapis urządzenia ----------------
@@ -665,6 +680,17 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
+        // Pola obowiązkowe (uwaga 6): brak danych – komunikat i anulowanie wysyłania.
+        var missing = ConfigurationValidator.MissingRequired(Editor.Configuration);
+        if (missing.Count > 0)
+        {
+            NavigateTo(missing[0].Section);
+            await ShowMessageAsync("Brak danych w polach obowiązkowych",
+                "Nie wpisano danych w polach:\n" + string.Join("\n", missing.Select(p => $"• {p.Name} (sekcja {SectionName(p.Section)}, Id {p.Id})")),
+                "Wysyłanie zostało anulowane. Uzupełnij pola oznaczone czerwoną obwódką i wyślij ponownie.", isError: true);
+            return;
+        }
+
         // Walidacja przed wysłaniem (pkt 9). Przy błędach – przejście do pierwszej sekcji z błędem.
         if (Editor.Issues.Count > 0)
         {
@@ -697,6 +723,14 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
+        // Przed każdym wysłaniem – zapis konfiguracji do pliku (uwaga 12).
+        if (!await SaveCoreAsync("Zapisz konfigurację przed wysłaniem do urządzenia"))
+        {
+            ShowToast("Wysyłanie anulowane – konfiguracja nie została zapisana do pliku.");
+            return;
+        }
+
+        config = Editor.Configuration.Clone();
         var progressDialog = new ProgressDialogViewModel { Title = $"Wysyłanie konfiguracji do {DeviceSerial}" };
         CurrentDialog = progressDialog;
         var progress = new Progress<OperationProgress>(p =>
@@ -718,8 +752,7 @@ public partial class MainViewModel : ViewModelBase
             failure = $"Urządzenie przestało odpowiadać po {ex.FramesDone} z {ex.FramesTotal} ramek ({ex.InnerException?.Message}). Konfiguracja w urządzeniu nie została prawidłowo zapisana – jej stan jest niepewny.";
             if (ex.InnerException is DeviceTimeoutException or TransportException)
             {
-                _keepAlive.Stop();
-                Connection = ConnectionState.Error;
+                await CloseSessionAsync(ConnectionState.Error);
             }
         }
         catch (ProtocolException ex)
@@ -742,7 +775,8 @@ public partial class MainViewModel : ViewModelBase
         }
         else
         {
-            await ShowMessageAsync("Konfiguracja zapisana częściowo", failure!, "Sprawdź połączenie, połącz ponownie i wyślij konfigurację jeszcze raz.", isError: true);
+            await ShowMessageAsync("Konfiguracja zapisana częściowo", failure!,
+                IsConnected ? "Połączenie pozostaje aktywne. Usuń przyczynę błędu i wyślij konfigurację jeszcze raz." : "Połączenie zostało zamknięte. Sprawdź kabel, kliknij „Połącz” i wyślij konfigurację jeszcze raz.", isError: true);
         }
     }
 
@@ -876,6 +910,12 @@ public partial class MainViewModel : ViewModelBase
     }
 
     public void NavigateTo(Section section) => Navigate(NavSections.First(n => n.Section == section));
+
+    private string SectionName(Section section) => NavSections.FirstOrDefault(n => n.Section == section)?.Title ?? "kanał";
+
+    /// <summary>Potwierdzenie zapisu do urządzenia (pkt 9, 15 Założeń) – np. dla liczników.</summary>
+    public Task<bool> ConfirmAsync(string title, string text, string confirmText) =>
+        ShowDialogAsync(new ConfirmDialogViewModel { Title = title, Text = text, ConfirmText = confirmText });
 
     /// <summary>Przy zamykaniu okna: ostrzeżenie o niezapisanych zmianach i zamknięcie portu.</summary>
     public async Task<bool> PrepareCloseAsync()

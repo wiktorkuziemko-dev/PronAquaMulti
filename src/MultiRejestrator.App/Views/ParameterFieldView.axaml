@@ -9,7 +9,7 @@
                        TextWrapping="Wrap" Margin="0,0,12,0" />
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <TextBox IsVisible="{Binding IsTextBox}" Text="{Binding Value}" Width="{Binding InputWidth}"
-                         MaxLength="{Binding MaxLength}" IsEnabled="{Binding IsEnabled}" Classes.mono="{Binding IsMonospace}" VerticalAlignment="Center"
+                         MaxLength="{Binding MaxLength}" IsEnabled="{Binding IsEnabled}" Classes.mono="{Binding IsMonospace}" Classes.required="{Binding IsRequired}" Classes.missing="{Binding IsMissing}" VerticalAlignment="Center"
                          AutomationProperties.Name="{Binding Label}" />
                 <ComboBox IsVisible="{Binding IsEnum}" ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedOption}"
                           MinWidth="240" IsEnabled="{Binding IsEnabled}" AutomationProperties.Name="{Binding Label}" />

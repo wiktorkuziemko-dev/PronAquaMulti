@@ -24,7 +24,12 @@ public partial class ParameterFieldViewModel : ObservableObject
 
     public ushort Id => Definition.Id;
 
-    public string Label => Definition.Name;
+    public string Label => Definition.IsRequired ? Definition.Name + " *" : Definition.Name;
+
+    /// <summary>Pole obowiązkowe (uwaga 6) – czerwona obwódka.</summary>
+    public bool IsRequired => Definition.IsRequired;
+
+    public bool IsMissing => Definition.IsRequired && string.IsNullOrWhiteSpace(Value);
 
     public string IdText => $"Id {Definition.Id}";
 
@@ -36,7 +41,8 @@ public partial class ParameterFieldViewModel : ObservableObject
         _ => Definition.Unit,
     };
 
-    public string Tooltip => string.IsNullOrEmpty(Definition.Notes) ? Definition.FullName : $"{Definition.FullName}\n{Definition.Notes}";
+    public string Tooltip => (string.IsNullOrEmpty(Definition.Notes) ? Definition.FullName : $"{Definition.FullName}\n{Definition.Notes}")
+        + (Definition.IsRequired ? "\nPole obowiązkowe – musi być wypełnione przed wysłaniem do urządzenia." : string.Empty);
 
     public bool IsEnum => Definition.EditKind == EditKind.Enum;
 
@@ -129,6 +135,7 @@ public partial class ParameterFieldViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedOption));
         OnPropertyChanged(nameof(Number));
         OnPropertyChanged(nameof(Unit));
+        OnPropertyChanged(nameof(IsMissing));
         foreach (var bit in Bits)
         {
             bit.NotifyChanged();

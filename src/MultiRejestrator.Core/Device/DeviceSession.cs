@@ -250,7 +250,7 @@ public sealed class DeviceSession : IAsyncDisposable
     /// <summary>
     /// Pobiera dane pomiarowe jednego dnia kolejnymi ramkami Measure Report.
     /// ZAŁOŻENIE: kolejna ramka zaczyna od minuty następnej po ostatniej otrzymanej; koniec, gdy brak
-    /// raportów albo minuta ≥ 1439 (Protokół rev3871 nie opisuje końca danych – docs/decyzje.md).
+    /// raportów albo minuta ≥ 1439 (Protokół rev3892 nie opisuje końca danych – docs/decyzje.md).
     /// </summary>
     public async Task<MeasureDay> ReadMeasureDayAsync(uint dayIndex, IProgress<OperationProgress>? progress, CancellationToken ct = default)
     {

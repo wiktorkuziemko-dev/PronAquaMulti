@@ -7,7 +7,7 @@ using MultiRejestrator.Protocol.Transport;
 namespace MultiRejestrator.Simulator;
 
 /// <summary>
-/// Urządzenie MultiRejestrator w pamięci: odpowiada na ramki zgodnie z Protokołem rev3871.
+/// Urządzenie MultiRejestrator w pamięci: odpowiada na ramki zgodnie z Protokołem rev3892.
 /// Każde zapytanie wymaga poprawnego hasła (odpowiedź 3.2). Nic nie wysyła samo z siebie (2.10).
 /// </summary>
 public sealed class SimulatedDevice
@@ -70,7 +70,7 @@ public sealed class SimulatedDevice
 
     public ushort ProtocolVersion { get; set; } = 1;
 
-    public FirmwareInfo Firmware { get; set; } = new(3871, "Nov  5 2026", "14:22:05");
+    public FirmwareInfo Firmware { get; set; } = new(3892, "Nov 23 2026", "10:05:12");
 
     /// <summary>Gdy <c>true</c>, urządzenie milczy (symulacja odłączenia lub zawieszenia).</summary>
     public bool Silent { get; set; }

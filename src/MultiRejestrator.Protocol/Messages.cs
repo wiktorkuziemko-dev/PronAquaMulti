@@ -195,7 +195,7 @@ public sealed record MeasureReportSection(
     }
 
     // ZAŁOŻENIE: odpowiedź może zawierać kilka sekcji (kanałów) jedna po drugiej – dekodujemy do końca danych.
-    // Protokół rev3871 opisuje jedną sekcję i nie podaje, jak wybrać kanał (patrz docs/decyzje.md).
+    // Protokół rev3892 opisuje jedną sekcję i nie podaje, jak wybrać kanał (patrz docs/decyzje.md).
     public static IReadOnlyList<MeasureReportSection> DecodeResponse(ReadOnlySpan<byte> data)
     {
         var sections = new List<MeasureReportSection>();

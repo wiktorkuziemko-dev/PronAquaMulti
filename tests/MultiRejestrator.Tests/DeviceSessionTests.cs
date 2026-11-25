@@ -38,7 +38,7 @@ public sealed class DeviceSessionTests : IAsyncLifetime
         var session = await Connect();
         Assert.Equal("12345678", session.Identity.SerialNumber);
         Assert.Equal(1, session.Identity.ProtocolVersion);
-        Assert.Equal(3871, session.Identity.Firmware.SvnRevision);
+        Assert.Equal(3892, session.Identity.Firmware.SvnRevision);
         Assert.Contains(_log, e => e.Direction == FrameDirection.Sent && e.Description.StartsWith("REQ_HELLO"));
     }
 

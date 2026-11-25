@@ -10,7 +10,7 @@ komentarzem `// ZAŁOŻENIE:`.
 
 | Temat | Przyjęte rozwiązanie |
 | --- | --- |
-| Bufor zdarzeń (pkt 13 Założeń) | Protokół rev3871 nie ma ramki bufora zdarzeń. Widok „Zdarzenia” z makiety zastąpiono widokiem „Dane pomiarowe” opartym na ramce Measure Report (0x0018). Do wyjaśnienia, czy to ta sama funkcja. |
+| Bufor zdarzeń (pkt 13 Założeń) | Protokół (rev3871, rev3892) nie ma ramki bufora zdarzeń. Widok „Zdarzenia” z makiety zastąpiono widokiem „Dane pomiarowe” opartym na ramce Measure Report (0x0018). Do wyjaśnienia, czy to ta sama funkcja. |
 | Measure Report – kanały | Zapytanie nie zawiera numeru kanału. Odpowiedź jest dekodowana jako ciąg sekcji (nagłówek 18 B + bloki), dopóki starcza danych – obsługuje zarówno jeden, jak i kilka kanałów w ramce. |
 | Measure Report – koniec danych | Program pobiera kolejne porcje od minuty następnej po ostatnio otrzymanej, aż odpowiedź nie zawiera bloków albo minuta przekroczy 1439. |
 | Measure Report – pole Day Index w odpowiedzi | Traktowane jako unsigned long (4 B) – numer indeksu dnia (opis w oryginale jest skopiowany z innej ramki). |
@@ -39,7 +39,7 @@ komentarzem `// ZAŁOŻENIE:`.
 | | 12. Przed każdym wysłaniem konfiguracji – zapis do pliku (okno wyboru pliku); anulowanie zapisu anuluje wysyłanie. | Uwaga 12. |
 | 2026-11-25 | Protokół rev3892: liczniki impulsów kanałów i liczniki urządzenia w widoku Diagnostyka – odczyt i zapis po potwierdzeniu. | Nowe ramki 1.2.12–1.2.13; pkt 12 Założeń („liczniki i inne dane diagnostyczne”). |
 | 2026-11-06 | Tryb demonstracyjny `--symulator` w programie (port „SYMULATOR”, urządzenie w pamięci). Niewidoczny bez parametru. | Testy i szkolenia bez sprzętu. |
-| 2026-11-06 | Widok „Zdarzenia” z makiety nazwany „Dane pomiarowe” (ramka Measure Report). | Protokół rev3871 nie ma bufora zdarzeń – patrz założenia wyżej. |
+| 2026-11-06 | Widok „Zdarzenia” z makiety nazwany „Dane pomiarowe” (ramka Measure Report). | Protokół rev3871 i rev3892 nie mają bufora zdarzeń – patrz założenia wyżej. |
 | 2026-11-06 | Numeracja wersji programu: `MAJOR.MINOR.PATCH` w `Directory.Build.props`. Tag `vX.Y.Z` na GitHubie buduje wydanie z plikami `.exe` (x64, x86). | Propozycja wykonawcy (9.9). |
 | 2026-11-06 | Plik konfiguracji: tekst UTF-8 `.txt`, jeden parametr w wierszu `Id = wartość  # nazwa`, sekcje jak w interfejsie, nagłówek z wersją protokołu, numerem seryjnym, firmware i datą. Bez osobnej wersji formatu. | 7.1, 7.4, 11.3 Założeń. |
 | 2026-11-05 | Log zapisywany wyłącznie w folderze programu, nadpisywany przy każdym połączeniu. Gdy system zablokuje zapis – tylko komunikat. | Ustalenie z 5.11.2026, 7.10. |

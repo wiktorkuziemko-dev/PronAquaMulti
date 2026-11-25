@@ -12,7 +12,7 @@ public sealed record MeasureRow(string Channel, string InputType, string Time, s
 
 /// <summary>
 /// Dane pomiarowe z ramki Measure Report (0x0018).
-/// ZAŁOŻENIE: zastępuje „bufor zdarzeń” z pkt 13 Założeń, którego Protokół rev3871 nie opisuje (docs/decyzje.md).
+/// ZAŁOŻENIE: zastępuje „bufor zdarzeń” z pkt 13 Założeń, którego Protokół rev3892 nie opisuje (docs/decyzje.md).
 /// </summary>
 public sealed partial class MeasurementsViewModel : PageViewModel
 {
